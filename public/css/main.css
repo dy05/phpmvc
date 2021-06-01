@@ -1,0 +1,10 @@
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+.align-center {
+    text-align: center;
+}
+
+.active {
+    background-color: #000;
+}

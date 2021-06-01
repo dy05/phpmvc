@@ -1,0 +1,8 @@
+=> Coming Soon
+- use a .env file for database configuration
+- Restructure project structure
+- Format to use dynamic class for intellisence in ide
+
+
+=> Find
+- Get a class attribute as static attribute ??
