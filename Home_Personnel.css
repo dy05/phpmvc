@@ -1,0 +1,87 @@
+* styles.css */
+
+/* Réinitialisation des styles par défaut */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Styles généraux */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #F2F2F2;
+    color: #333333;
+}
+
+h1,
+h2,
+h3 {
+    color: #00ADEF;
+}
+
+header {
+    padding: 20px;
+    background-color: #FFFFFF;
+}
+
+nav ul {
+    list-style-type: none;
+    background-color: #00ADEF;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin: 0;
+}
+
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    color: #FFFFFF;
+    text-decoration: none;
+    padding: 10px;
+}
+
+main {
+    padding: 20px;
+}
+
+.role-section {
+    background-color: #FFFFFF;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.role-section h3 {
+    color: #00ADEF;
+    margin-bottom: 10px;
+}
+
+.role-section p {
+    margin-bottom: 10px;
+}
+
+.role-section a {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #00ADEF;
+    color: #FFFFFF;
+    text-decoration: none;
+    border-radius: 3px;
+}
+
+.role-section a:hover {
+    background-color: #007B9E;
+}
+
+footer {
+    background-color: #00ADEF;
+    color: #FFFFFF;
+    padding: 10px;
+    text-align: center;
+}
