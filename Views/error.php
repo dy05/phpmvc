@@ -1,6 +1,6 @@
 <?php
     $title = '404 - Page Not Found';
-    $template = 'layouts/app.php';
+    $template = 'layouts/base.php';
 ?>
 <title>
     404 - Page Not Found

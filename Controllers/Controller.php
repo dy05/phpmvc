@@ -82,7 +82,7 @@ abstract class Controller
             if ($test === $_COOKIE['remember']) {
                 User::staticQuery('UPDATE users SET confirmed_at = NOW() WHERE id = ?', [$user_id], true, false);
                 $_SESSION['auth'] = $user;
-                header('Location:' . ROUTE . '/account');
+                header('Location:' . ROUTE . '/');
             } else {
                 setcookie('remember', NULL, -1);
             }
@@ -111,17 +111,10 @@ abstract class Controller
     {
         if (isset($this->session['auth'])) {
             $user = $this->session['auth'];
-            $users = User::findAll();
 
-            if (! in_array('users', $datas)) {
+            if ($user) {
                 $datas = array_merge($datas, [
-                    'users' => $users,
-                ]);
-            }
-
-            if (! in_array('auth_user', $datas)) {
-                $datas = array_merge($datas, [
-                    'auth_user' => $user,
+                    'authUser' => $user,
                 ]);
             }
         }

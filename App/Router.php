@@ -18,7 +18,7 @@ class Router
 
     public function get($path, $callable, $name = null): Route
     {
-        return $this->addRoute($path, $callable, $name, 'GET');
+        return $this->addRoute($path, $callable, $name);
     }
 
     public function post($path, $callable, $name = null): Route
@@ -117,7 +117,7 @@ class Router
      */
     public function url($name, $params = [])
     {
-        if (!isset($this->namedRoutes[$name])) {
+        if (! isset($this->namedRoutes[$name])) {
             throw new RouterException("No route matches this name");
         }
 

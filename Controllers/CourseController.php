@@ -12,7 +12,7 @@ class CourseController extends Controller
         $this->redirectIfNotConnect();
         $courses = Course::staticQuery("SELECT * FROM courses");
 
-        $this->render('cours.php', [
+        $this->render('courses/index.php', [
             'page_name' => 'courspage',
             'courses' => $courses
         ]);
@@ -66,7 +66,7 @@ class CourseController extends Controller
             $data['errors'] = $errors;
         }
 
-        $this->render('cours_create.php', $data);
+        $this->render('courses/cours_create.php', $data);
     }
 
     public function show(int $id = null)
@@ -81,7 +81,7 @@ class CourseController extends Controller
             'course' => $course,
         ];
 
-        $this->render('cours_show.php', $data);
+        $this->render('courses/cours_show.php', $data);
     }
 
     public function edit(int $id = null)
@@ -143,7 +143,7 @@ class CourseController extends Controller
             $data['errors'] = $errors;
         }
 
-        $this->render('cours_edit.php', $data);
+        $this->render('courses/cours_edit.php', $data);
     }
 
     public function delete(int $id = null)

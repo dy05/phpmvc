@@ -2,9 +2,11 @@
 
 namespace RBAC\App;
 
+use Exception;
+
 /**
  * Class RouterException
  */
-class RouterException extends \Exception
+class RouterException extends Exception
 {
 }

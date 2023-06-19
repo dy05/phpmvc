@@ -7,7 +7,6 @@ namespace RBAC\App;
 */
 class Autoloader
 {
-
     /**
     * Enregistre notre autoloader
     */

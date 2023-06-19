@@ -2,9 +2,8 @@
 
 namespace RBAC\Models;
 
-use \PDO;
+use PDO;
 use PDOException;
-use RBAC\App\Route;
 
 abstract class DB
 {
@@ -245,7 +244,7 @@ abstract class DB
         return static::findAll($datas, $keys, true);
     }
 
-    public static function getTable($table = null)
+    public static function getTable($table = null): string
     {
 //        return $table ?? (new (static::class))->table;
         return static::$_table;
