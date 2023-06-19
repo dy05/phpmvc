@@ -180,6 +180,7 @@ abstract class DB
     public static function staticQuery($sql, $datas = [], $one = false, $return = true)
     {
         $req = static::getPDO()->prepare($sql);
+        $req->setFetchMode(PDO::FETCH_CLASS, static::class);
         $req->execute($datas);
         // Si on accepte de retourner les informations
         if ($return) {

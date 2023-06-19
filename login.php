@@ -55,7 +55,7 @@
         
         /*if($username == 'admin' && $password == '123456'){
             $_SESSION['username'] = $username;
-            header('location: index.php');
+            header('location: absences.php');
         }else{
             echo 'Login failed';
         }*/

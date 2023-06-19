@@ -12,9 +12,9 @@
 </head>
 
 <body>
-    <header>
-        <h1>Système de gestion de l'EFREI</h1>
-    </header>
+<header>
+    <h1 class="gtitre"> <a href="index.php"><img src="logo.png"></a> Système de gestion de l'EFREI</h1>
+</header>
 
     <nav>
         <ul>

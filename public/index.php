@@ -6,7 +6,7 @@ session_start();
 $generalRoute = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'];
 
-$viewsDir = str_replace('/index.php', '', str_replace('public','Views/', str_replace('Public','Views/', $_SERVER['SCRIPT_FILENAME'])));
+$viewsDir = str_replace('/absences.php', '', str_replace('public','Views/', str_replace('Public','Views/', $_SERVER['SCRIPT_FILENAME'])));
 $viewsDir = str_replace('\index.php', '', $viewsDir);
 
 if ($host === 'localhost') {
@@ -26,7 +26,7 @@ require '../App/Autoloader.php';
 \RBAC\App\Autoloader::register();
 
 $path = $_SERVER['REQUEST_URI'];
-if (in_array($path, ['', '/', '/index.php'])) {
+if (in_array($path, ['', '/', '/absences.php'])) {
     $path = 'home';
 }
 

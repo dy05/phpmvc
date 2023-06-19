@@ -23,7 +23,6 @@ class AuthController extends Controller
 
     public function add_user()
     {
-        $user = User::find($this->session['auth']);
         $this->render('usersnew.php', [
             'page_name' => 'Add user'
         ]);
@@ -34,11 +33,10 @@ class AuthController extends Controller
         $user = User::find($id);
 
         if (! $user) {
-            return $this->callErrorPage();
+            $this->callErrorPage();
+            return;
         }
 
-        var_dump($user);
-        die();
         $this->render('usersshow.php', [
             'page_name' => 'Show user'
         ]);

@@ -1,7 +1,3 @@
-<?php
-$template = 'dashboard.php';
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,7 +9,12 @@ $template = 'dashboard.php';
 </head>
 <body>
 <header>
-    <h1 class="gtitre"> <a href="<?= ROUTE . '/home'; ?>"><img src="logo.png"></a> Système de gestion de l'EFREI</h1>
+    <a class="flex" href="<?= ROUTE . '/home'; ?>">
+        <img src="<?= ROUTE . '/logo.png'; ?>" alt="logo" />
+        <h1 class="gtitre ml-2">
+            Système de gestion de l'EFREI
+        </h1>
+    </a>
 </header>
 
 <nav>
@@ -23,14 +24,15 @@ $template = 'dashboard.php';
                 Accueil
             </a>
         </li>
-        <li>
-            <a href="<?= ROUTE . '/formations'; ?>">
-                Formations
-            </a>
-        </li>
+        <?php if (isset($_SESSION['auth'])): ?>
         <li>
             <a href="<?= ROUTE . '/cours'; ?>">
                 Cours
+            </a>
+        </li>
+        <li>
+            <a href="<?= ROUTE . '/formations'; ?>">
+                Formations
             </a>
         </li>
         <li>
@@ -58,11 +60,29 @@ $template = 'dashboard.php';
                 Enseignants
             </a>
         </li>
+        <li>
+            <a href="<?= ROUTE . '/logout'; ?>" onclick="document.getElementById('formLogout')?.submit(); return false;">
+                Se deconnecter
+            </a>
+            <form action="<?= ROUTE . '/logout'; ?>" method="post" class="hidden" id="formLogout"></form>
+        </li>
+        <?php else: ?>
+            <li>
+                <a href="<?= ROUTE . '/login'; ?>">
+                    Se connecter
+                </a>
+            </li>
+            <li>
+                <a href="<?= ROUTE . '/register'; ?>">
+                    S'inscrire
+                </a>
+            </li>
+        <?php endif; ?>
     </ul>
 </nav>
 
 <main>
-    <h2>Bienvenue dans la page d'administration</h2>
+    <?= isset($content) ? $content : ''; ?>
 </main>
 
 <footer>

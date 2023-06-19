@@ -5,6 +5,8 @@ $router->get('/index', function () use ($router) {
     header('Location:' . ROUTE . '/home');
 });
 
+$router->get('/home', 'PagesController@home', 'homepage');
+
 $router->get('/login', 'NoAuthController@login', 'login');
 $router->post('/login', 'NoAuthController@login');
 $router->get('/register', 'NoAuthController@register', 'register');
@@ -27,3 +29,23 @@ $router->post('/blogs/delete/:id', 'PagesController@deleteblog', 'blogdeleteblog
 $router->get('/blogs/delete/:id', 'PagesController@deleteblog', 'blogdelete');
 
 $router->get('/account', 'AuthController@home', 'adminhome');
+
+$router->get('/notes', 'PagesController@notes', 'notespage');
+
+$router->get('/cours', 'PagesController@cours', 'courspage');
+$router->get('/formations', 'PagesController@formations', 'formationspage');
+$router->get('/salles', 'PagesController@salles', 'sallespage');
+$router->get('/horaires', 'PagesController@horaires', 'horairespage');
+$router->get('/absences', 'PagesController@absences', 'absencespage');
+$router->get('/etudiants', 'PagesController@etudiants', 'etudiantspage');
+$router->get('/enseignants', 'PagesController@enseignants', 'enseignantspage');
+
+$router->get('/admin/index', 'PagesController@adminhome', 'adminhomepage');
+$router->get('/admin/absences', 'PagesController@adminabsences', 'adminabsencespage');
+$router->get('/etudiant/index', 'PagesController@etudianthome', 'etudianthomepage');
+$router->get('/enseignant/index', 'PagesController@enseignanthome', 'enseignanthomepage');
+$router->get('/personnel_administratif/index', 'PagesController@personneladminhome', 'personneladminhomepage');
+
+
+
+

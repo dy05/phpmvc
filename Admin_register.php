@@ -28,7 +28,7 @@ $count = mysqli_num_rows($resultsame);
             $_SESSION['txtemail'] = $email;
             //include('email\awpreg.php');
             echo "Succès réussie.";
-            echo "<a href='index.php'>Aller à la page principale</a>";
+            echo "<a href='absences.php'>Aller à la page principale</a>";
         } else {
             echo "Échec de la création de compte.";
         }

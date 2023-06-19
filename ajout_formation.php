@@ -25,7 +25,7 @@ if(isset($_POST['btnRegister'])){
         $results = mysqli_query($connection, $query);
         if ($results) {
             echo "Création de fomation.";
-            echo "<a href='index.php'>Aller à la page principale</a>";
+            echo "<a href='absences.php'>Aller à la page principale</a>";
         } else {
             echo "Échec de la création de fomation.";
         }

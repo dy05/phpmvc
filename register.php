@@ -29,7 +29,7 @@ if(isset($_POST['btnRegister'])){
             $_SESSION['txtemail'] = $email;
             //include('email\awpreg.php');
             echo "Inscription réussie, nous vous avons envoyé un email de confirmation.";
-            echo "<a href='index.php'>Aller à la page principale</a>";
+            echo "<a href='absences.php'>Aller à la page principale</a>";
         } else {
             echo "Échec de l'inscription.";
         }

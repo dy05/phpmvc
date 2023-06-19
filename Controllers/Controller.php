@@ -50,7 +50,7 @@ class Controller
 
             if ($test === $_COOKIE['remember']) {
                 User::staticQuery('UPDATE users SET confirmed_at = NOW() WHERE id = ?', [$user_id], true, false);
-                $_SESSION['auth'] = $user->id;
+                $_SESSION['auth'] = $user;
                 header('Location:' . ROUTE . '/account');
             } else {
                 setcookie('remember', NULL, -1);
@@ -79,7 +79,7 @@ class Controller
     public function render($page_name, $datas = [])
     {
         if (isset($this->session['auth'])) {
-            $user = User::find($this->session['auth']);
+            $user = $this->session['auth'];
             $users = User::findAll();
 
             if (! in_array('users', $datas)) {
@@ -103,7 +103,6 @@ class Controller
         ob_start();
         require VIEWS . '' . $page_name;
         $content = ob_get_clean();
-
 
         if (isset($template)) {
             require VIEWS . '' . $template;

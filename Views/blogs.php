@@ -6,7 +6,7 @@
 
 <?php
 
-if (isset($_SESSION['auth']) && $_SESSION['auth'] === '1'):
+if (isset($_SESSION['auth']) && (string)($_SESSION['auth'])->id === '1'):
 ?>
     <form action="<?= ROUTE . '/blogs/new'; ?>" method="post">
         <input type="text" name="name" required><br/>
@@ -28,7 +28,7 @@ foreach ($blogs as $key => $blog):
         echo "<hr/>";
     }
     print_r($blog);
-if (isset($_SESSION['auth']) && $_SESSION['auth'] === '1'):
+if (isset($_SESSION['auth']) && (string)($_SESSION['auth'])->id === '1'):
 ?>
     <form action="<?= ROUTE . '/blogs/delete/'.$blog->id; ?>" method="post">
         <input type="hidden" name="deleteid" value="<?= $blog->id; ?>">

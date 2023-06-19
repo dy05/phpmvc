@@ -63,6 +63,7 @@ $template = 'dashboard.php';
 
 <main>
     <h2>Bienvenue dans la page d'administration</h2>
+    <h>Gestion des absences</h>
 </main>
 
 <footer>
