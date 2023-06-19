@@ -2,7 +2,6 @@
 
 namespace RBAC\App;
 
-
 /**
  * Class Route
  */
@@ -19,17 +18,17 @@ class Route
         $this->callable = $callable;
     }
 
-    public static function getControllersNamespace()
+    public static function getControllersNamespace(): string
     {
         return "RBAC\\Controllers\\";
     }
 
-    public function url()
+    public function url(): string
     {
         return $this->path;
     }
 
-    public function match($url)
+    public function match($url): bool
     {
         $parts = explode('/', $url);
         $path = explode(':', $this->path);
@@ -47,7 +46,7 @@ class Route
         return $this->path === $url;
     }
 
-    public function matched($url)
+    public function matched($url): bool
     {
         $path = preg_replace_callback('#:([\w]+)#', [$this, 'paramMatch'], $this->path);
         $regex = "#^$path#i";
@@ -65,7 +64,7 @@ class Route
         return true;
     }
 
-    public function paramMatch($match)
+    public function paramMatch($match): string
     {
         if (isset($this->params[$match[1]])) {
             return '(' . $this->params[$match[1]] . ')';
@@ -74,7 +73,7 @@ class Route
         return '([^/]+)';
     }
 
-    public function getUrl($params)
+    public function getUrl($params): string
     {
         $path = $this->path;
         foreach ($params as $key => $value) {
@@ -84,7 +83,12 @@ class Route
         return $path;
     }
 
-    public function call($data  = null)
+    /**
+     * @param mixed $data
+     *
+     * @return mixed
+     */
+    public function call($data = null)
     {
         if (is_string($this->callable)) {
             $params = explode('@', $this->callable);
@@ -97,7 +101,7 @@ class Route
         return call_user_func_array($this->callable, $this->matches);
     }
 
-    public function with($param, $regex)
+    public function with($param, $regex): Route
     {
         $this->params[$param] = str_replace('(', '(?:', $regex);
         return $this;

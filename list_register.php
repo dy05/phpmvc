@@ -40,7 +40,7 @@ if (isset($_POST['btnUpdate'])) {
 </head>
 <body>
 
-    <h2>Admin Students Details</h2>git
+    <h2>Admin Students Details</h2>
     <?php
 
     //step3: execute the query

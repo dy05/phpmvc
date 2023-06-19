@@ -81,6 +81,12 @@
     </ul>
 </nav>
 
+<?php if (isset($alert)): ?>
+<div class="alert alert-success">
+    <p><?= $alert; ?></p>
+</div>
+<?php endif; ?>
+
 <main>
     <?= isset($content) ? $content : ''; ?>
 </main>

@@ -9,17 +9,17 @@ $template = 'layouts/base.php';
         <div class="card border-none">
             <div class="card-body">
                 <form class="form-login" action="" method="post">
-                    <h2 class="form-login-heading">Sign In</h2>
+                    <h2 class="form-login-heading">
+                        Sign In
+                    </h2>
 
                     <?php if (! empty($errors)): ?>
                         <div class="alert alert-danger">
-                            <p>
-                                <ul>
-                                    <?php foreach ($errors as $error): ?>
-                                        <?= "<li>{$error}</li>"; ?>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </p>
+                            <ul>
+                                <?php foreach ($errors as $error): ?>
+                                    <?= "<li>$error</li>"; ?>
+                                <?php endforeach; ?>
+                            </ul>
                         </div>
                     <?php endif; ?>
 
@@ -37,7 +37,7 @@ $template = 'layouts/base.php';
                             <input type="password" class="form-control" id="password" name="password" placeholder="********" required />
                         </div>
                         <div class="form-group d-flex">
-                            <input type="checkbox" class="form-check-inline" id="remember" name="remember" value="1" <?= isset($old['remember']) ? 'checked' : '';?>/>
+                            <input type="checkbox" class="form-check-inline" id="remember" name="remember" value="1" <?= isset($old['remember']) ? 'checked' : '';?> />
                             <label for="remember" class="mt-2">
                                 Remember Me
                             </label>

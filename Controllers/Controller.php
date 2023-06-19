@@ -4,13 +4,11 @@ namespace RBAC\Controllers;
 
 use RBAC\Models\User;
 
-class Controller
+abstract class Controller
 {
-
-    protected static $db;
-    protected static $postData;
-    protected $session;
-    protected $cookies;
+    protected $postData = [];
+    protected $session = [];
+    protected $cookies = [];
 
     public function __construct()
     {
@@ -18,7 +16,7 @@ class Controller
          * Les 3 conditions suivantes permettent de sauvegarder dans les variables $post, $session, $cookies les  variables $_POST, $_SESSION, $_COOKIE
          */
         if (isset($_POST)) {
-            self::$postData = $_POST;
+            $this->postData = array_map('trim', $_POST);
         }
 
         if (isset($_SESSION)) {
@@ -28,6 +26,39 @@ class Controller
         if (isset($_COOKIE)) {
             $this->cookies = $_COOKIE;
         }
+    }
+
+    /**
+     * @param string $text
+     * @param string $divider
+     *
+     * @return string
+     */
+    public static function slugify(string $text, string $divider = '-'): string
+    {
+        // replace non letter or digits by divider
+        $text = preg_replace('~[^\pL\d]+~u', $divider, $text);
+
+        // transliterate
+        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+
+        // remove unwanted characters
+        $text = preg_replace('~[^-\w]+~', '', $text);
+
+        // trim
+        $text = trim($text, $divider);
+
+        // remove duplicate divider
+        $text = preg_replace('~-+~', $divider, $text);
+
+        // lowercase
+        $text = strtolower($text);
+
+        if (empty($text)) {
+            return 'n-a';
+        }
+
+        return $text;
     }
 
     public function random_key($length)
@@ -91,6 +122,16 @@ class Controller
             if (! in_array('auth_user', $datas)) {
                 $datas = array_merge($datas, [
                     'auth_user' => $user,
+                ]);
+            }
+        }
+
+        if (isset($this->session['flash'])) {
+            $alert = $this->session['flash']['success'];
+            if ($alert) {
+                unset($_SESSION['flash']);
+                $datas = array_merge($datas, [
+                    'alert' => $alert,
                 ]);
             }
         }

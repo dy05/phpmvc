@@ -26,7 +26,7 @@ require '../App/Autoloader.php';
 \RBAC\App\Autoloader::register();
 
 $path = $_SERVER['REQUEST_URI'];
-if (in_array($path, ['', '/', '/absences.php'])) {
+if (in_array($path, ['', '/', '/index', '/index.php'])) {
     $path = 'home';
 }
 
@@ -43,9 +43,4 @@ $router = new \RBAC\App\Router($path);
 require_once '../routes.php';
 
 $router->run();
-
-if (isset($_SESSION['flash'])) {
-    unset($_SESSION['flash']);
-}
-//unset($_SESSION['auth']);
 

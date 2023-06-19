@@ -16,7 +16,7 @@ $template = 'layouts/base.php';
                 </p>
                 <ul class="">
                     <?php foreach ($errors as $error): ?>
-                        <!--                <li class="list-group-item bg-transparent border-0 align-items-end mr-0">--><?//= $error; ?><!--</li>-->
+                        <!--                <li class="list-group-item bg-transparent border-0 align-items-end mr-0"><---?= $error; ?></li>-->
                         <li class="">
                             <?= $error; ?>
                         </li>
