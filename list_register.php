@@ -40,9 +40,9 @@ if (isset($_POST['btnUpdate'])) {
 </head>
 <body>
 
-    <h2>Admin Students Details</h2>
+    <h2>Admin Students Details</h2>git
     <?php
-            
+
     //step3: execute the query
 
     $query = "SELECT * FROM user";

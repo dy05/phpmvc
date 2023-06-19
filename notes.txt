@@ -1,0 +1,10 @@
+
+- creer la table role, creer les actions/privileges
+- on va relies l'utilisateur a un role par defaut
+- definir les diffferents actions/privilegees de chaque role (etudiant // ===> actions)
+
+- cours, classes, formation,
+- plannings
+
+
+
