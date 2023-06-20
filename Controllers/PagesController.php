@@ -1,83 +1,80 @@
 <?php
 
-namespace DyosMvc\Controllers;
+namespace RBAC\Controllers;
 
-
-use DyosMvc\Models\Article;
-use DyosMvc\Models\User;
+use RBAC\Models\User;
 
 class PagesController extends Controller
 {
     public function home()
     {
-        $this->redirectIfNotConnect();
-//        $_SESSION['auth'] = 1;
-//        $user = User::find(1);
-//        echo "<pre>";
-//        printf($user);
-//        echo "</pre>";
-//        die();
-        $this->isUserCookie();
-//        $this->redirectIfNotConnect();
         $this->render('home.php', [
             'page_name' => 'homepage'
         ]);
     }
 
-    public function contact()
+    public function notes()
     {
-        $this->isUserCookie();
-        $this->render('contact.php', [
-            'page_name' => 'contact'
+        $this->redirectIfNotConnect();
+
+        $this->render('notes.php', [
+            'page_name' => 'notespage'
         ]);
     }
 
-    public function blogs($id = null)
+    public function salles()
     {
-        die('loll');
-        $this->isUserCookie();
-        $error = null;
-        if ($id === null) {
-            $blogs = Article::findAll();
-            $page = 'blogs';
-        }else{
-            // pour convertir en int
-            $id = $id + 0;
-            $blog = Article::find($id);
-            if (!$blog) {
-                $error = true;
-            }
-            $page = 'blog';
-        }
-
-        $this->render($page.'.php', [
-            'page_name' => 'blogs',
-            $page   =>  ${$page},
-            'error' => $error
+        $this->render('salles.php', [
+            'page_name' => 'sallespage'
         ]);
     }
 
-    public function editblog($id)
+    public function horaires()
     {
-        var_dump($id);
-        die();
-        $this->render($page.'.php', [
-            'page_name' => 'blogs',
-            $page   =>  ${$page},
-            'error' => $error
+        $this->render('horaires.php', [
+            'page_name' => 'horairespage'
         ]);
     }
 
-    public function deleteblog($id)
+    public function absences()
     {
-        echo Article::$_table;
-        die();
-        $action = Article::delete($id, 'articles');
-        $this->render('blogs.php', [
-            'page_name' => 'blogs',
-            'blogs' => Article::findAll(),
-            'alert' => 'Article supprime avec succes'
+        $this->render('absences.php', [
+            'page_name' => 'absencespage'
         ]);
     }
 
+    public function formations()
+    {
+        $this->render('formations.php', [
+            'page_name' => 'formationspage'
+        ]);
+    }
+
+    public function etudiants()
+    {
+        $this->redirectIfNotConnect();
+
+        $sqlString = "SELECT users.*, group_concat(DISTINCT roles.code SEPARATOR ', ') as roles FROM users"
+            . " INNER JOIN user_role ON user_role.user_id = users.id INNER JOIN roles ON roles.id = user_role.role_id"
+            . " WHERE roles.code = 'student'"
+            . " GROUP BY users.id";
+        $users = User::staticQuery($sqlString);
+//        $query = User::staticQuery($sqlString);
+//        $query = User::getPDO()->prepare($sqlString);
+//        $query->setFetchMode(PDO::FETCH_CLASS, User::class);
+//        $query->execute();
+//        $users = $query->fetchAll();
+
+        $this->render('etudiants.php', [
+            'page_name' => 'etudiantsspage',
+            'etudiants' => $users,
+        ]);
+    }
+
+    public function enseignants()
+    {
+        $this->render('enseignants.php', [
+            'page_name' => 'enseignantspage'
+        ]);
+    }
 }

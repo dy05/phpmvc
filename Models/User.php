@@ -1,48 +1,51 @@
 <?php
 
-namespace DyosMvc\Models;
+namespace RBAC\Models;
 
 
-class User extends Db
+class User extends DB
 {
-    protected $table = 'users';
+    public static $_table = 'users';
 
     public static function findAll($datas = [], $keys = '*', $one = false)
     {
+        $sqlQuery = '';
         if (!empty($datas)) {
-            $sqlend = '';
             foreach ($datas as $key => $data) {
-                $sqlend .= " $key = :$key AND";
+                $sqlQuery .= " $key = :$key AND";
             }
-            $sqlend = substr($sqlend, 0, -4);
+            $sqlQuery = substr($sqlQuery, 0, -4);
         }
 
-//        $sql = 'SELECT ' . $keys . ' FROM ' . self::$_table;
-        $sql = 'SELECT * FROM ' . self::getTable();
-        // Au cas ou ce sont les informations de l'administrateur
-        if (!array_key_exists('id', $datas)) {
-            if (isset($_SESSION['auth'])) {
-                $sql .= ' WHERE id != :actif_user';
-                if ($_SESSION['auth'] !== 1) {
-                    $sql .= ' AND id != 1';
-                }
+        if (is_array($keys)) {
+            $keys = join(',', $keys);
+        }
 
-                $datas = array_merge($datas, ['actif_user' => $_SESSION['auth']]);
+        $sql = 'SELECT ' . $keys . ' FROM ' . self::getTable();
+        // Au cas où ce sont les informations de l'administrateur
+
+        if (! isset($datas['id'])) {
+//            if (isset($_SESSION['auth'])) {
+//                $sql .= ' WHERE id != :actif_user';
+//                if ($_SESSION['auth'] !== 1) {
+//                    $sql .= ' AND id != 1';
+//                }
+//
+//                $datas = array_merge($datas, ['actif_user' => $_SESSION['auth']]);
+//            }
+
+            if ($sqlQuery != '') {
+                $sql .= ' WHERE' . $sqlQuery;
             }
 
-            if (isset($sqlend)) {
-                $sql .= $sqlend;
-            }
-
-            $result = self::staticquery($sql, $datas, $one);
+            $result = self::staticQuery($sql, $datas, $one);
         } else {
-            // Au cas ou ce sont les informations de l'administrateur
-            if ($datas['id'] === 1) {
-                $result = self::staticquery('SELECT * FROM ' . self::getTable() . ' WHERE id = 1', [], true);
-//                $result = self::staticquery('SELECT ' . $keys . ' FROM ' . self::getTable() . ' WHERE id = 1', [], true);
+            // Au cas où ce sont les informations de l'administrateur
+            if ((int) $datas['id'] === 1) {
+                $result = self::staticQuery('SELECT ' . $keys . ' FROM ' . self::getTable() . ' WHERE id = ?', [1], true);
             } else {
-                $sql .= ' WHERE' . $sqlend;
-                $result = self::staticquery($sql, $datas, $one);
+                $sql .= ' WHERE' . $sqlQuery;
+                $result = self::staticQuery($sql, $datas, $one);
             }
         }
         return $result;
@@ -51,54 +54,92 @@ class User extends Db
     public static function findiAll($datas = [], $keys = '*', $one = false)
     {
         if (!empty($datas)) {
-            $sqlend = '';
+            $sqlQuery = '';
             foreach ($datas as $key => $data) {
-                $sqlend .= " $key = :$key AND";
+                $sqlQuery .= " $key = :$key AND";
             }
-            $sqlend = substr($sqlend, 0, -4);
+            $sqlQuery = substr($sqlQuery, 0, -4);
         }
 
         $sql = 'SELECT ' . $keys . ' FROM ' . self::$_table;
 
-        // Au cas ou ce sont les informations de l'administrateur
+        // Au cas où ce sont les informations de l'administrateur
         if (! array_key_exists('id', $datas)) {
             if (isset($_SESSION['auth'])) {
                 $sql .= ' WHERE id != :actif_user';
-                if ($_SESSION['auth'] !== 1) {
+                if (($_SESSION['auth'])->id !== 1) {
                     $sql .= ' AND id != 1';
                 }
-                $datas = array_merge($datas, ['actif_user' => $_SESSION['auth']]);
+                $datas = array_merge($datas, ['actif_user' => ($_SESSION['auth'])->id]);
             }
 
-            if (isset($sqlend)) {
-                $sql .= $sqlend;
+            if (isset($sqlQuery)) {
+                $sql .= $sqlQuery;
             }
 
-            $result = self::staticquery($sql, $datas, $one);
+            $result = self::staticQuery($sql, $datas, $one);
         } else {
             // Au cas ou ce sont les informations de l'administrateur
             if ($datas['id'] === 1) {
-                $result = self::staticquery('SELECT ' . $keys . ' FROM ' . self::$_table . ' WHERE id = 1', [], true);
+                $result = self::staticQuery('SELECT ' . $keys . ' FROM ' . self::$_table . ' WHERE id = 1', [], true);
             } else {
-                $sql .= ' WHERE' . $sqlend;
-                $result = self::staticquery($sql, $datas, $one);
+                $sql .= ' WHERE' . $sqlQuery;
+                $result = self::staticQuery($sql, $datas, $one);
             }
         }
         return $result;
     }
 
 
-    public static function find($datas, $keys = '*')
+    public static function find($userId, $keys = '*')
     {
-        if (is_string($datas) || is_integer($datas)) {
-            return self::findAll(['id' => $datas], $keys, true);
+
+        if ((int) $userId > 0) {
+            return self::findAll(['id' => $userId], $keys, true);
         }
 
-        return self::findAll($datas, $keys, true);
+        return self::findAll($userId, $keys, true);
     }
 
-    public static function findUsername(string $username, $table = null)
+    public static function findByEmail(string $email, $withRole = false)
     {
-        return self::getstaticPDO()->query("SELECT * FROM {self::getTable($table)} WHERE username = '{$username}'")->fetch();
+        $sqlString = "SELECT users.* FROM users WHERE email = ?";
+        if ($withRole) {
+            $sqlString = "SELECT users.*, roles.name as role FROM users WHERE email = ? LEFT JOIN user_role ON user_role.user_id = users.id LEFT JOIN roles ON roles.id = user_role.role_id";
+        }
+        $query = self::getPDO()->prepare($sqlString);
+        $query->execute([$email]);
+        return $query->fetch();
+    }
+
+    /**
+     * @param string $role
+     *
+     * @return bool
+     */
+    public function hasRole(string $role): bool
+    {
+        $roles = explode(', ', $this->roles ?? '');
+        if (in_array($role, $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStudent(): bool
+    {
+        return $this->hasRole('student');
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
     }
 }

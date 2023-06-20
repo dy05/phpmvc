@@ -1,7 +1,15 @@
 <?php
     $title = '404 - Page Not Found';
-//    $template = 'layouts/app.php';
+    $template = 'layouts/base.php';
 ?>
-<title>404 - Page Not Found</title>
-<h2>Error 404</h2>
-<p>Page Not Found</p>
+<title>
+    404 - Page Not Found
+</title>
+
+<h2>
+    Error 404
+</h2>
+
+<p>
+    Page Not Found
+</p>

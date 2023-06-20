@@ -1,8 +1,8 @@
 <?php
 
-namespace DyosMvc\Controllers\Admin;
+namespace RBAC\Controllers\Admin;
 
-use DyosMvc\Controllers\Controller;
+use RBAC\Controllers\Controller;
 
 class PagesController extends Controller
 {

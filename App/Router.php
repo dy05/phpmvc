@@ -1,15 +1,14 @@
 <?php
 
-namespace DyosMvc\App;
+namespace RBAC\App;
 
 /**
  * Class Router
  */
 class Router
 {
-
-    private $routes = [];
     private $url;
+    private $routes = [];
     private $namedRoutes = [];
 
     public function __construct($url)
@@ -17,25 +16,40 @@ class Router
         $this->url = $url;
     }
 
-    public function get($path, $callable, $name = null)
+    public function get($path, $callable, $name = null): Route
     {
-        return $this->addRoute($path, $callable, $name, 'GET');
+        return $this->addRoute($path, $callable, $name);
     }
 
-    public function post($path, $callable, $name = null)
+    public function post($path, $callable, $name = null): Route
     {
         return $this->addRoute($path, $callable, $name, 'POST');
+    }
 
+    public function put($path, $callable, $name = null): Route
+    {
+        return $this->addRoute($path, $callable, $name, 'PUT');
+    }
+
+    public function patch($path, $callable, $name = null): Route
+    {
+        return $this->addRoute($path, $callable, $name, 'PATCH');
+    }
+
+    public function delete($path, $callable, $name = null): Route
+    {
+        return $this->addRoute($path, $callable, $name, 'DELETE');
     }
 
     /**
      * @param $path
      * @param $callable
-     * @param $name
-     * @param $method
+     * @param string|null $name
+     * @param string $method
+     *
      * @return Route
      */
-    public function addRoute($path, $callable, $name, $method)
+    public function addRoute($path, $callable, string $name = null, string $method = 'GET'): Route
     {
         $route = new Route($path, $callable);
         $this->routes[$method][] = $route;
@@ -57,6 +71,9 @@ class Router
         }
 	}
 
+    /**
+     * @throws RouterException
+     */
     public function run()
     {
         if (! isset($this->routes[$_SERVER['REQUEST_METHOD']])) {
@@ -77,19 +94,28 @@ class Router
             }
         }
 
-        /** @var Route $route */
-        foreach ($this->routes[$_SERVER['REQUEST_METHOD']] as $route) {
-            if ($route->match($this->url)) {
-                return $route->call($data);
+        $method = $_POST['_method'] ?? $_SERVER['REQUEST_METHOD'];
+
+        if (in_array($method, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])) {
+            /**
+             * @var Route $route
+             */
+            foreach ($this->routes[$method] as $route) {
+                if ($route->match($this->url)) {
+                    return $route->call($data);
+                }
             }
         }
 
-        return call_user_func([new (Route::getControllersNamespace() . 'Controller'), 'callErrorPage']);
+        return call_user_func([new (Route::getControllersNamespace() . 'PagesController'), 'callErrorPage']);
     }
 
+    /**
+     * @throws RouterException
+     */
     public function url($name, $params = [])
     {
-        if (!isset($this->namedRoutes[$name])) {
+        if (! isset($this->namedRoutes[$name])) {
             throw new RouterException("No route matches this name");
         }
 

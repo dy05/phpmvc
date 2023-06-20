@@ -7,7 +7,11 @@ $generalRoute = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https'
 $host = $_SERVER['HTTP_HOST'];
 
 $viewsDir = str_replace('/index.php', '', str_replace('public','Views/', str_replace('Public','Views/', $_SERVER['SCRIPT_FILENAME'])));
-if ($host === 'localhost') {
+$viewsDir = str_replace('\index.php', '', $viewsDir);
+
+$host_parts = explode(':', $host);
+
+if ($host_parts[0] === 'localhost' && ! isset($host_parts[1])) {
     $addHost = explode('public', $_SERVER['REQUEST_URI']);
     $host .= $addHost[0] . 'public';
 }
@@ -17,14 +21,13 @@ define('ROUTE', $generalRoute);
 define('MEDIA', $generalRoute . '/img/');
 define('VIEWS', $viewsDir);
 
-
 // pour recuperer les fichiers des classes automatiquement
 require '../App/Autoloader.php';
 
-\DyosMvc\App\Autoloader::register();
+\RBAC\App\Autoloader::register();
 
 $path = $_SERVER['REQUEST_URI'];
-if (in_array($path, ['', '/', '/index.php'])) {
+if (in_array($path, ['', '/', '/index', '/index.php'])) {
     $path = 'home';
 }
 
@@ -36,14 +39,8 @@ if (substr($path,0, 1) === '/') {
     $path = substr($path, 1);
 }
 
-$router = new \DyosMvc\App\Router($path);
+$router = new \RBAC\App\Router($path);
 
 require_once '../routes.php';
 
 $router->run();
-
-if (isset($_SESSION['flash'])) {
-    unset($_SESSION['flash']);
-}
-//unset($_SESSION['auth']);
-

@@ -20,9 +20,8 @@ $title = 'Users List';
             <thead>
             <tr>
                 <th>Noms</th>
-                <th>Username</th>
+                <th>Prenoms</th>
                 <th>Email</th>
-                <th>Phone</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -30,10 +29,9 @@ $title = 'Users List';
             <?php if (isset($users)): ?>
                 <?php foreach($users as $user): ?>
                     <tr>
-                        <td><?= ucfirst($user->name); ?></td>
-                        <td><?= ucfirst($user->username); ?></td>
+                        <td><?= ucfirst($user->nom); ?></td>
+                        <td><?= ucfirst($user->prenom); ?></td>
                         <td><?= ucfirst($user->email); ?></td>
-                        <td><?= ucfirst($user->phone); ?></td>
                         <td>
                             <a href="<?= ROUTE . '/users/'.$user->id; ?>" class="btn btn-outline-primary btn-xs">
                                 <i class="fa fa-eye"></i>

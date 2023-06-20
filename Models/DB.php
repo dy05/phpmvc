@@ -1,121 +1,96 @@
 <?php
 
-namespace DyosMvc\Models;
+namespace RBAC\Models;
 
-use \PDO;
-use DyosMvc\App\Route;
+use PDO;
+use PDOException;
 
-class Db
+abstract class DB
 {
     /**
      * @var int
      */
-    protected $id;
     protected static $_id;
 
     /**
      * @var string
      */
-    protected $table;
-
     public static $_table;
+
     /**
      * @var PDO
      */
-    private $pdo;
-
     private static $_pdo;
 
     /**
      * @var null|string
      */
-    protected $host = 'localhost';
     protected static $_host = 'localhost';
 
-    /**
-     * @var null|string
-     */
-    protected $base = 'mvc';
-    protected static $_base = 'mvc';
 
     /**
      * @var null|string
      */
-    protected $user = 'root';
+    protected static $_base = 'solution_factory';
+
+    /**
+     * @var null|string
+     */
     protected static $_user = 'root';
 
     /**
      * @var null|string
      */
-    protected $pass = '';
     protected static $_pass = '';
 
-    public function __construct($id = null, $base=null,$pass=null,$host=null,$user=null)
+    public function __construct($base = null, $user = null, $pass = null, $host = null, $id = null)
     {
         //Connexion à la base de données
 
         if ($base !== null) {
-            $this->base = $base;
-            self::$_base = $base;
+            static::$_base = $base;
         }
+
         if ($pass !== null) {
-            $this->pass = $pass;
-            self::$_pass = $pass;
+            static::$_pass = $pass;
         }
+
         if ($user !== null) {
-            $this->user = $user;
-            self::$_user = $user;
+            static::$_user = $user;
         }
+
         if ($host !== null) {
-            $this->host = $host;
-            self::$_host = $host;
+            static::$_host = $host;
         }
+
         if ($id !== null) {
-            $this->id = $id;
-            self::$_id = $id;
+            static::$_id = $id;
         }
-
     }
 
     /**
-     * @return PDO
+     * @return PDO|null
      */
-    public function getPDO() {
-        if ($this->pdo === null) {
+    public static function getPDO(): ?PDO
+    {
+        if (static::$_pdo === null) {
             try {
-                $db = new PDO('mysql:host=' . $this->host . ';dbname=' . $this->base . ';charset=UTF8;', $this->user, $this->pass);
+                $db = new PDO('mysql:host=' . static::$_host . ';dbname=' . static::$_base . ';charset=UTF8;', static::$_user, static::$_pass);
                 $db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
                 $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
-                $this->pdo = $db;
-            } catch (\PDOException $e) {
+                static::$_pdo = $db;
+            } catch (PDOException $e) {
                 echo $e->getMessage();
             }
         }
-        return $this->pdo;
-    }
 
-    /**
-     * @return PDO
-     */
-    public static function getstaticPDO() {
-        if (self::$_pdo === null) {
-            try {
-                $db = new PDO('mysql:host=' . self::$_host . ';dbname=' . self::$_base . ';charset=UTF8;', self::$_user, self::$_pass);
-                $db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-                $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
-                self::$_pdo = $db;
-            } catch (\PDOException $e) {
-                echo $e->getMessage();
-            }
-        }
-        self::setTable();
-        return self::$_pdo;
+        return static::$_pdo;
     }
 
 
     public function query($sql, $datas = [])
     {
-        $req = $this->getPDO()->prepare($sql);
+        $req = static::getPDO()->prepare($sql);
         $req->execute($datas);
         return $req;
     }
@@ -124,10 +99,10 @@ class Db
     {
         $tables = explode('\\', strtolower(get_called_class()) . 's');
         if ($tables[2] === 'users') {
-            self::$_table = 'users';
-        }else {
+            static::$_table = 'users';
+        } else {
             foreach ($tables as $table) {
-                self::$_table = $table;
+                static::$_table = $table;
             }
         }
     }
@@ -135,42 +110,41 @@ class Db
     public static function add(array $datas, $table = null)
     {
         if ($table !== null) {
-            self::$_table = $table;
-        }else{
-            self::setTable();
+            static::$_table = $table;
+        } else {
+            static::setTable();
         }
 
-        $sql = 'INSERT INTO '.self::$_table;
+        $sql = 'INSERT INTO '.static::$_table;
         foreach ($datas as $key => $data) {
             $sql .= " $key = :$key AND";
         }
         $sql = substr($sql, 0, -4);
-        $result = self::staticquery($sql, $datas, true, false);
-        return $result;
+        return static::staticQuery($sql, $datas, true, false);
     }
 
     public static function update(array $datas, $wheres, $table = null)
     {
         if ($table !== null) {
-            self::$_table = $table;
-        }else{
-            self::setTable();
+            static::$_table = $table;
+        } else {
+            static::setTable();
         }
 
-        $sql = 'UPDATE '.self::$_table.' SET';
+        $sql = 'UPDATE '.static::$_table.' SET';
         foreach ($datas as $key => $data) {
             $sql .= " $key = :$key AND";
         }
         $sql = substr($sql, 0, -4);
 
         if (!is_array($wheres)) {
-            $var = self::find($wheres);
+            $var = static::find($wheres);
             if (!$var) {
                 return false;
             }
             $sql .= ' WHERE id = :id';
             $datas = array_merge($datas, ['id' => $wheres]);
-        }else{
+        } else {
             $sql .= ' WHERE ';
             foreach ($wheres as $key => $where) {
                 if (is_string($key)) {
@@ -181,7 +155,7 @@ class Db
             $datas = array_merge($datas, $wheres);
         }
 
-        $result = self::getstaticPDO()->prepare($sql);
+        $result = static::getPDO()->prepare($sql);
         $result->execute($datas);
         return $result;
     }
@@ -189,24 +163,25 @@ class Db
     public static function delete($id, $table = null)
     {
         if ($table !== null) {
-            self::$_table = $table;
-        }else{
-            self::setTable();
+            static::$_table = $table;
+        } else {
+            static::setTable();
         }
-        $var = self::find($id);
+        $var = static::find($id);
         if ($var) {
-            $req = self::getstaticPDO()->query('DELETE FROM '.self::$_table.' WHERE id = '.$var->id);
+            $req = static::getPDO()->query('DELETE FROM '.static::$_table.' WHERE id = '.$var->id);
             $req->execute();
             return true;
         }
         return false;
     }
 
-    public static function staticquery($sql, $datas = [], $one = false, $return = true)
+    public static function staticQuery($sql, $datas = [], $one = false, $return = true)
     {
-        $req = self::getstaticPDO()->prepare($sql);
+        $req = static::getPDO()->prepare($sql);
+        $req->setFetchMode(PDO::FETCH_CLASS, static::class);
         $req->execute($datas);
-        // Si on accepte de retourner les information
+        // Si on accepte de retourner les informations
         if ($return) {
             if ($one) {
                 $result = $req->fetch();
@@ -220,9 +195,7 @@ class Db
 
     public function create($datas = [])
     {
-        die('Not Available');
-        $sql = 'INSERT INTO '.$this->table;
-        $result = $this->getPDO()->prepare($sql);
+        return static::getPDO()->prepare('INSERT INTO ' . static::$_table);
     }
 
     public function select($datas = [], $keys = null, $one = false)
@@ -230,7 +203,7 @@ class Db
         if ($keys === null) {
             $keys = '*';
         }
-        $sql = 'SELECT '.$keys.' FROM '.$this->table;
+        $sql = 'SELECT '.$keys.' FROM ' . static::$_table;
         if (!empty($datas)) {
             $sql .= ' WHERE';
             foreach ($datas as $key => $data) {
@@ -241,7 +214,7 @@ class Db
         $req = $this->query($sql, $datas);
         if ($one) {
             $result = $req->fetch();
-        }else{
+        } else {
             $result =$req->fetchAll();
         }
         return $result;
@@ -249,9 +222,9 @@ class Db
 
     public static function findAll($datas = [], $keys = '*', $one = false)
     {
-        //Pour mettre la table automatique;
-        self::setTable();
-        $sql = 'SELECT ' . $keys . ' FROM ' . self::$_table;
+        // Pour mettre la table automatique
+        static::setTable();
+        $sql = 'SELECT ' . $keys . ' FROM ' . static::$_table;
         if (!empty($datas)) {
             $sql .= ' WHERE';
             foreach ($datas as $key => $data) {
@@ -259,20 +232,21 @@ class Db
             }
             $sql = substr($sql, 0, -4);
         }
-        $result = self::staticquery($sql, $datas, $one);
+        $result = static::staticQuery($sql, $datas, $one);
         return $result;
     }
 
     public static function find($datas, $keys = '*')
     {
         if (is_string($datas) || is_integer($datas)) {
-            return self::findAll(['id' => $datas], $keys, true);
+            return static::findAll(['id' => $datas], $keys, true);
         }
-        return self::findAll($datas, $keys, true);
+        return static::findAll($datas, $keys, true);
     }
 
-    public static function getTable($table = null)
+    public static function getTable($table = null): string
     {
-        return $table ?? (new (static::class))->table;
+//        return $table ?? (new (static::class))->table;
+        return static::$_table;
     }
 }

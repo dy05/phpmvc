@@ -10,12 +10,18 @@ $template = 'layouts/app.php';
 
     <div class="card">
         <div class="card-body">
-            <form method="POST" action="">
-                <div class="row">
-                    <div>
-                        <h3 class="text-primary">Add new User</h3>
-                    </div>
+            <form method="POST" class="row" action="">
+                <div class="container">
+                    <h3 class="text-primary">Add new User</h3>
 
+                    <br/>
+
+                    <div class="form-group">
+                        <label for="nom">
+                            Nom
+                        </label>
+                        <input type="text" name="nom" id="nom" required />
+                    </div>
 
                     <button type="submit" class="btn btn-primary btn-lg btn-block">
                         <i class="fa fa-check"></i>
@@ -25,7 +31,6 @@ $template = 'layouts/app.php';
             </form>
         </div>
     </div>
-
 </div>
 
 <!--        </div>-->
