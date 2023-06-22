@@ -61,6 +61,31 @@ abstract class Controller
         return $text;
     }
 
+    /**
+     * @param string $nom
+     * @param string $prenom
+     *
+     * @return string
+     */
+    public static function getEmail(string $nom, string $prenom): string
+    {
+        $email = $prenom . '.' . $nom . '@efrei.fr';
+
+        $i = 0;
+        do {
+            if ($i > 0) {
+                $email = $prenom . '.' . $nom . $i . '@efrei.fr';
+            }
+
+            $user = User::staticQuery('SELECT id FROM users WHERE email = ?', [$email], true);
+            if ($user) {
+                $i++;
+            }
+        } while($user);
+
+        return $email;
+    }
+
     public function random_key($length)
     {
         $letters = '0123456789abcdefghijklmnopqrstuvwxyzQWERTYUIOPLKJHGFDSAZXCVBNM';

@@ -56,11 +56,4 @@ class PagesController extends Controller
             'etudiants' => $users,
         ]);
     }
-
-    public function enseignants()
-    {
-        $this->render('enseignants.php', [
-            'page_name' => 'enseignantspage'
-        ]);
-    }
 }

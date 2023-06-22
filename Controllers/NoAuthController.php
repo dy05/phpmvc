@@ -51,46 +51,36 @@ class NoAuthController extends Controller
         $errors = [];
 
         if (!empty($this->postData)) {
-            if (empty($this->postData['nom']) || !preg_match('/^[a-zA-Z0-9_]+$/', $this->postData['nom'])) {
+            $nom = $this->postData['nom'];
+            $prenom = $this->postData['prenom'];
+            if (empty($nom) || !preg_match('/^[a-zA-Z0-9_]+$/', $nom)) {
                 $errors['nom'] = "Vous n'avez pas entrer de nom";
             }
 
-            if (empty($this->postData['prenom']) || !preg_match('/^[a-zA-Z0-9_]+$/', $this->postData['prenom'])) {
+            if (empty($prenom) || !preg_match('/^[a-zA-Z0-9_]+$/', $prenom)) {
                 $errors['prenom'] = "Vous n'avez pas entrer de prenom";
             }
 
-            $email = $this->postData['prenom'] . '.' . $this->postData['nom'] . '@efrei.fr';
+            try {
+                $email = static::getEmail($nom, $prenom);
 
-            $i = 0;
-            do {
-                if ($i > 0) {
-                    $email = $this->postData['prenom'] . '.' . $this->postData['nom'] . $i . '@efrei.fr';
+                if (empty($this->postData['mdp'])) {
+                    $errors['mdp'] = "Vous n'avez pas entrer de mot de passe";
                 }
 
-                $user = User::staticQuery('SELECT id FROM users WHERE email = ?', [$email], true);
-                if ($user) {
-                    $i++;
+                if (empty($this->postData['mdp_confirm'])) {
+                    $errors['mdp'] = "Vous n'avez pas entrer les deux mots de passe";
                 }
-            } while($user);
 
-            if (empty($this->postData['mdp'])) {
-                $errors['mdp'] = "Vous n'avez pas entrer de mot de passe";
-            }
+                if ($this->postData['mdp'] !== $this->postData['mdp_confirm']) {
+                    $errors['mdp'] = "Les deux mots de passe ne correspondent pas";
+                }
 
-            if (empty($this->postData['mdp_confirm'])) {
-                $errors['mdp'] = "Vous n'avez pas entrer les deux mots de passe";
-            }
-
-            if ($this->postData['mdp'] !== $this->postData['mdp_confirm']) {
-                $errors['mdp'] = "Les deux mots de passe ne correspondent pas";
-            }
-
-            if (empty($errors)) {
-                try {
+                if (empty($errors)) {
                     $password = password_hash($this->postData['mdp'], PASSWORD_BCRYPT);
                     $pdo = User::getPDO();
                     $req = $pdo->prepare("INSERT INTO users SET nom = ?, prenom = ?, mdp = ?, email = ?");
-                    $req->execute([$this->postData['nom'], $this->postData['prenom'], $password, $email]);
+                    $req->execute([$nom, $prenom, $password, $email]);
                     //$pdo = "INSERT INTO users SET username = ".$this->postData['usernamme'].", password=".$this->postData['password'].", email=".$this->postData['email'];
 //                $user_id = $pdo->lastInsertId();
 //                $http = str_replace('register.php', 'confirm.php?id='.$user_id.'&token='.$token, $_SERVER['HTTP_REFERER']);
@@ -103,15 +93,21 @@ class NoAuthController extends Controller
                         $_SESSION['flash'] = ['success' => 'Vous etes a present connecte'];
                         header('Location:' . ROUTE . '/');
                     }
-                } catch (Exception $exc) {
-                    $errors['error'] = $exc->getMessage();
                 }
+            } catch (Exception $exc) {
+                $errors['error'] = $exc->getCode() > 0 ? 'Erreur innatendue' : $exc->getMessage();
             }
         }
 
         $old = $this->postData;
-        unset($old['mdp']);
-        unset($old['mdp_confirm']);
+
+        if (isset($old['mdp'])) {
+            unset($old['mdp']);
+        }
+
+        if (isset($old['mdp_confirm'])) {
+            unset($old['mdp_confirm']);
+        }
 
         $this->render('register.php', [
             'page_name' => 'register',

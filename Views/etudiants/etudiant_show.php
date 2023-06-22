@@ -45,7 +45,7 @@ $title = "Gestion des etudiants";
         </div>
 
         <div class="mt-5">
-            <a href="<?= ROUTE . '/etudiant/edit/' . $etudiant->id; ?>" class="btn btn-primary">
+            <a href="<?= ROUTE . '/etudiants/edit/' . $etudiant->id; ?>" class="btn btn-primary">
                 Editer
             </a>
         </div>

@@ -98,29 +98,9 @@ abstract class DB
     public static function setTable()
     {
         $tables = explode('\\', strtolower(get_called_class()) . 's');
-        if ($tables[2] === 'users') {
-            static::$_table = 'users';
-        } else {
-            foreach ($tables as $table) {
-                static::$_table = $table;
-            }
-        }
-    }
-
-    public static function add(array $datas, $table = null)
-    {
-        if ($table !== null) {
+        foreach ($tables as $table) {
             static::$_table = $table;
-        } else {
-            static::setTable();
         }
-
-        $sql = 'INSERT INTO '.static::$_table;
-        foreach ($datas as $key => $data) {
-            $sql .= " $key = :$key AND";
-        }
-        $sql = substr($sql, 0, -4);
-        return static::staticQuery($sql, $datas, true, false);
     }
 
     public static function update(array $datas, $wheres, $table = null)
@@ -160,19 +140,20 @@ abstract class DB
         return $result;
     }
 
-    public static function delete($id, $table = null)
+    public static function delete($id, $table = null): bool
     {
         if ($table !== null) {
             static::$_table = $table;
         } else {
             static::setTable();
         }
+
         $var = static::find($id);
         if ($var) {
             $req = static::getPDO()->query('DELETE FROM '.static::$_table.' WHERE id = '.$var->id);
-            $req->execute();
-            return true;
+            return $req->execute();
         }
+
         return false;
     }
 
@@ -181,6 +162,7 @@ abstract class DB
         $req = static::getPDO()->prepare($sql);
         $req->setFetchMode(PDO::FETCH_CLASS, static::class);
         $req->execute($datas);
+
         // Si on accepte de retourner les informations
         if ($return) {
             if ($one) {
@@ -190,12 +172,27 @@ abstract class DB
             }
             $req = $result;
         }
+
         return $req;
     }
 
-    public function create($datas = [])
+    public function create($datas = [], string $table = null)
     {
-        return static::getPDO()->prepare('INSERT INTO ' . static::$_table);
+        if ($table !== null) {
+            static::$_table = $table;
+        } else {
+            static::setTable();
+        }
+
+        $sqlQuery = 'INSERT INTO ' . static::$_table;
+        $sqlQueryValues = [];
+
+        foreach ($datas as $key => $data) {
+            $sqlQuery .= " $key = ?,";
+            $sqlQueryValues[] = $data;
+        }
+
+        return static::staticQuery(substr($sqlQuery, -1), $sqlQueryValues, true, false);
     }
 
     public function select($datas = [], $keys = null, $one = false)
@@ -224,16 +221,17 @@ abstract class DB
     {
         // Pour mettre la table automatique
         static::setTable();
+
         $sql = 'SELECT ' . $keys . ' FROM ' . static::$_table;
-        if (!empty($datas)) {
+        if (! empty($datas)) {
             $sql .= ' WHERE';
             foreach ($datas as $key => $data) {
                 $sql .= " $key = :$key AND";
             }
             $sql = substr($sql, 0, -4);
         }
-        $result = static::staticQuery($sql, $datas, $one);
-        return $result;
+
+        return static::staticQuery($sql, $datas, $one);
     }
 
     public static function find($datas, $keys = '*')
@@ -241,10 +239,11 @@ abstract class DB
         if (is_string($datas) || is_integer($datas)) {
             return static::findAll(['id' => $datas], $keys, true);
         }
+
         return static::findAll($datas, $keys, true);
     }
 
-    public static function getTable($table = null): string
+    public static function getTable(): string
     {
 //        return $table ?? (new (static::class))->table;
         return static::$_table;

@@ -2,19 +2,27 @@
 
 $router->get('/home', 'PagesController@home', 'homepage');
 
+// ACCOUNT
+
+$router->get('/account', 'AuthController@user', 'adminhome');
+$router->post('/account', 'AuthController@user');
+
 $router->get('/login', 'NoAuthController@login', 'login');
 $router->post('/login', 'NoAuthController@login');
 $router->get('/register', 'NoAuthController@register', 'register');
 $router->post('/register', 'NoAuthController@register');
 $router->post('/logout', 'AuthController@logout', 'logout');
 
-$router->get('/users', 'AuthController@users', 'userspage');
-$router->get('/users/new', 'AuthController@add_user', 'usersnewpage');
-$router->post('/users/new', 'AuthController@usersadd', 'usersnewform');
-$router->get('/users/:id', 'AuthController@show_user', 'usersshow');
+// USERS
 
+$router->get('/users', 'UserController@index', 'userspage');
+$router->get('/users/new', 'UserController@store', 'usersnewpage');
+$router->post('/users/new', 'UserController@store');
+$router->get('/users/edit/:id', 'UserController@edit', 'userseditpage');
+$router->put('/users/edit/:id', 'UserController@edit');
+$router->get('/users/:id', 'UserController@show', 'usersshow');
+$router->delete('/users/:id', 'UserController@delete');
 
-$router->get('/account', 'AuthController@home', 'adminhome');
 
 // COURSES
 
