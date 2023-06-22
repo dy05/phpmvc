@@ -99,6 +99,10 @@ img {
     display: flex;
 }
 
+.justify-between {
+    justify-content: space-between;
+}
+
 .hidden {
     display: none;
 }

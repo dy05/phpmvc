@@ -1,13 +1,13 @@
 <?php
 $template = 'layouts/base.php';
-$title = "Gestion des cours";
+$title = "Gestion des formations";
 ?>
 
 <div class="d-flex mb-3">
-    <h2>Gestion des cours</h2>
-    <a href="<?= ROUTE . '/cours'; ?>" class="btn btn-primary ml-auto">
+    <h2>Gestion des formations</h2>
+    <a href="<?= ROUTE . '/formations'; ?>" class="btn btn-primary ml-auto">
         <i class="fa fa-list"></i>
-        Liste des cours
+        Liste des formations
     </a>
 </div>
 
@@ -16,37 +16,37 @@ $title = "Gestion des cours";
         <div>
             <h3>Nom</h3>
             <p>
-                <?= $course->nom; ?>
+                <?= $formation->nom; ?>
             </p>
         </div>
         <div>
             <h3>Code</h3>
             <p>
-                <?= $course->code ?? null; ?>
+                <?= $formation->code ?? null; ?>
             </p>
         </div>
         <div>
             <h3>Duree</h3>
             <p>
-                <?= $course->duree ?? null; ?>
+                <?= $formation->duree ?? null; ?>
             </p>
         </div>
         <div>
             <h3>Niveau</h3>
             <p>
-                <?= $course->niveau ?? null; ?>
+                <?= $formation->niveau ?? null; ?>
             </p>
         </div>
 
         <div class="mt-5 flex justify-between">
-            <a href="<?= ROUTE . '/cours/edit/' . $course->id; ?>" class="btn btn-primary">
+            <a href="<?= ROUTE . '/formations/edit/' . $formation->id; ?>" class="btn btn-primary">
                 <i class="fa fa-pencil-alt mr-2"></i>
                 Editer
             </a>
 
-            <form action="<?= ROUTE . '/cours/delete/'.$course->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer ce cours ?')">
+            <form action="<?= ROUTE . '/formations/delete/'.$formation->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer cette formation ?')">
                 <input type="hidden" name="_method" value="DELETE" />
-                <button type="submit" href="<?= ROUTE . '/cours/delete/'.$course->id; ?>" class="btn btn-danger btn-xs">
+                <button type="submit" href="<?= ROUTE . '/formations/delete/'.$formation->id; ?>" class="btn btn-danger btn-xs">
                     <i class="fa fa-trash-alt mr-2"></i>
                     Supprimer
                 </button>

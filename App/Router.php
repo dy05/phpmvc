@@ -60,7 +60,7 @@ class Router
             $this->namedRoutes[$name] = $route;
         }
         return $route;
-	}
+    }
 
     public function listRoute()
     {
@@ -69,7 +69,7 @@ class Router
             print_r($route);
             echo "</pre>";
         }
-	}
+    }
 
     /**
      * @throws RouterException
@@ -95,17 +95,18 @@ class Router
         }
 
         $method = $_SERVER['REQUEST_METHOD'];
-
-        if ($method === 'POST' && in_array($_POST['_method'], ['PUT', 'PATCH', 'DELETE'])) {
-            $method = $_POST['_method'];
+        if ($method === 'POST') {
+            $method = $_POST['_method'] ?? $method;
         }
 
-        /**
-         * @var Route $route
-         */
-        foreach ($this->routes[$method] as $route) {
-            if ($route->match($this->url)) {
-                return $route->call($data);
+        if (in_array($method, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])) {
+            /**
+             * @var Route $route
+             */
+            foreach ($this->routes[$method] as $route) {
+                if ($route->match($this->url)) {
+                    return $route->call($data);
+                }
             }
         }
 

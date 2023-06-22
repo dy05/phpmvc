@@ -3,18 +3,18 @@
 namespace RBAC\Controllers;
 
 use Exception;
-use RBAC\Models\Course;
+use RBAC\Models\Formation;
 
-class CourseController extends Controller
+class FormationController extends Controller
 {
     public function index()
     {
         $this->redirectIfNotConnect();
-        $courses = Course::staticQuery("SELECT * FROM courses");
+        $formation = Formation::staticQuery("SELECT * FROM formations");
 
-        $this->render('courses/index.php', [
-            'page_name' => 'courspage',
-            'courses' => $courses
+        $this->render('formations/index.php', [
+            'page_name' => 'formationspage',
+            'formations' => $formation
         ]);
     }
 
@@ -23,7 +23,7 @@ class CourseController extends Controller
         $this->redirectIfNotConnect();
         $errors = array();
         $data = [
-            'page_name' => 'coursnewpage',
+            'page_name' => 'formationsnewpage',
             'old' => $this->postData
         ];
 
@@ -39,24 +39,23 @@ class CourseController extends Controller
             }
 
             $niveau = $this->postData['niveau'];
-            if ($niveau && ! is_numeric($niveau)) {
-                unset($data['old']['niveau']);
-                $errors['niveau'] = "Le champs niveau doit etre un entier valide.";
+            if (! empty($niveau) && ! in_array($niveau, ['Bac + 1', 'Bac + 2', 'Bac + 3'])) {
+                $errors['niveau'] = "Le champs niveau n'est pas valide.";
             }
 
             if (empty($errors)) {
                 try {
-                    $pdo = Course::getPDO();
+                    $pdo = Formation::getPDO();
                     $code = $this->postData['code'];
                     if (empty($code)) {
                         $code = self::slugify($this->postData['nom']);
                     }
 
-                    $req = $pdo->prepare("INSERT INTO courses SET nom = ?, duree = ?, niveau = ?, code = ?");
+                    $req = $pdo->prepare("INSERT INTO formations SET nom = ?, duree = ?, niveau = ?, code = ?");
                     $req->execute([$this->postData['nom'], $duree !== '' ? $duree : null, $niveau !== '' ? $niveau : null, $code]);
                     if ($pdo->lastInsertId()) {
-                        $_SESSION['flash'] = ['success' => 'le cours a bien ete ajoute.'];
-                        header('Location:' . ROUTE . '/cours');
+                        $_SESSION['flash'] = ['success' => 'la formation a bien été ajoutée.'];
+                        header('Location:' . ROUTE . '/formations');
                     }
                 } catch (Exception $exc) {
                     $errors['error'] = $exc->getCode() > 0 ? 'Erreur innatendue. ' : $exc->getMessage();
@@ -66,34 +65,34 @@ class CourseController extends Controller
             $data['errors'] = $errors;
         }
 
-        $this->render('courses/cours_create.php', $data);
+        $this->render('formations/formations_create.php', $data);
     }
 
     public function show(int $id = null)
     {
-        $course = Course::staticQuery('SELECT * FROM courses WHERE id = ?', [$id], true);
-        if (! $course) {
+        $formation = Formation::staticQuery('SELECT * FROM formations WHERE id = ?', [$id], true);
+        if (! $formation) {
             $this->callErrorPage();
             return;
         }
 
         $data = [
-            'course' => $course,
+            'formation' => $formation,
         ];
 
-        $this->render('courses/cours_show.php', $data);
+        $this->render('formations/formations_show.php', $data);
     }
 
     public function edit(int $id = null)
     {
-        $course = Course::staticQuery('SELECT * FROM courses WHERE id = ?', [$id], true);
-        if (! $course) {
+        $formation = Formation::staticQuery('SELECT * FROM formations WHERE id = ?', [$id], true);
+        if (! $formation) {
             $this->callErrorPage();
             return;
         }
 
         $data = [
-            'course' => $course,
+            'formation' => $formation,
         ];
 
         $errors = [];
@@ -109,19 +108,19 @@ class CourseController extends Controller
             }
 
             $niveau = $this->postData['niveau'];
-            if ($niveau && ! is_numeric($niveau)) {
-                $errors['niveau'] = "Le champs niveau doit etre un entier valide.";
+            if (empty($niveau)) {
+                $niveau = self::slugify($this->postData['niveau']);
             }
 
             if (empty($errors)) {
                 try {
-                    $pdo = Course::getPDO();
+                    $pdo = Formation::getPDO();
                     $code = $this->postData['code'];
                     if (empty($code)) {
                         $code = self::slugify($this->postData['nom']);
                     }
 
-                    $req = $pdo->prepare("UPDATE courses SET nom = :nom, duree = :duree, niveau = :niveau, code = :code WHERE id = :id");
+                    $req = $pdo->prepare("UPDATE formations SET nom = :nom, duree = :duree, niveau = :niveau, code = :code WHERE id = :id");
                     $result = $req->execute([
                         ':nom' => $this->postData['nom'],
                         ':duree' => $duree !== '' ? $duree : null,
@@ -131,8 +130,8 @@ class CourseController extends Controller
                     ]);
 
                     if ($result) {
-                        $_SESSION['flash'] = ['success' => 'le cours a bien été modifié.'];
-                        header('Location:' . ROUTE . '/cours');
+                        $_SESSION['flash'] = ['success' => 'la formation a bien été modifiée.'];
+                        header('Location:' . ROUTE . '/formations');
                     }
                 } catch (Exception $exc) {
 //                    $errors['error'] = $exc->getCode() > 0 ? 'Erreur innatendue. ' : $exc->getMessage();
@@ -143,29 +142,28 @@ class CourseController extends Controller
             $data['errors'] = $errors;
         }
 
-        $this->render('courses/cours_edit.php', $data);
+        $this->render('formations/formations_edit.php', $data);
     }
 
     public function delete(int $id = null)
     {
-        $course = Course::staticQuery('SELECT * FROM courses WHERE id = ?', [$id], true);
-        if (! $course) {
+        $formation = Formation::staticQuery('SELECT * FROM formations WHERE id = ?', [$id], true);
+        if (! $formation) {
             $this->callErrorPage();
             return;
         }
 
         try {
-            $req = Course::getPDO()->query('DELETE FROM courses WHERE id = ' . $id);
+            $req = Formation::getPDO()->query('DELETE FROM formations WHERE id = ' . $id);
             if ($req->execute()) {
-                $_SESSION['flash'] = ['success' => 'le cours a ete supprime avec succes.'];
+                $_SESSION['flash'] = ['success' => 'la formation a été supprimée avec succès.'];
             } else {
                 $_SESSION['flash'] = ['error' => 'Erreur innatendue.'];
             }
         } catch (Exception $exc) {
-//            $_SESSION['flash'] = ['error' => $exc->getMessage()];
             $_SESSION['flash'] = ['error' => $exc->getCode() > 0 ? 'Erreur innatendue.' : $exc->getMessage()];
         }
 
-        header('Location:' . ROUTE . '/cours');
+        header('Location:' . ROUTE . '/formations');
     }
 }

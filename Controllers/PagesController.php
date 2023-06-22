@@ -22,13 +22,6 @@ class PagesController extends Controller
         ]);
     }
 
-    public function salles()
-    {
-        $this->render('salles.php', [
-            'page_name' => 'sallespage'
-        ]);
-    }
-
     public function horaires()
     {
         $this->render('horaires.php', [
@@ -40,13 +33,6 @@ class PagesController extends Controller
     {
         $this->render('absences.php', [
             'page_name' => 'absencespage'
-        ]);
-    }
-
-    public function formations()
-    {
-        $this->render('formations.php', [
-            'page_name' => 'formationspage'
         ]);
     }
 

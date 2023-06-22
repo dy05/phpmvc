@@ -1,9 +1,6 @@
 <?php
 
 $router->get('/home', 'PagesController@home', 'homepage');
-//$router->get('/index', function () use ($router) {
-//    header('Location:' . ROUTE . '/home');
-//});
 
 $router->get('/login', 'NoAuthController@login', 'login');
 $router->post('/login', 'NoAuthController@login');
@@ -16,9 +13,8 @@ $router->get('/users/new', 'AuthController@add_user', 'usersnewpage');
 $router->post('/users/new', 'AuthController@usersadd', 'usersnewform');
 $router->get('/users/:id', 'AuthController@show_user', 'usersshow');
 
-$router->get('/account', 'AuthController@home', 'adminhome');
 
-$router->get('/notes', 'PagesController@notes', 'notespage');
+$router->get('/account', 'AuthController@home', 'adminhome');
 
 // COURSES
 
@@ -31,8 +27,30 @@ $router->get('/cours/:id', 'CourseController@show', 'coursshowpage');
 $router->delete('/cours/:id', 'CourseController@delete');
 
 
-$router->get('/formations', 'PagesController@formations', 'formationspage');
-$router->get('/salles', 'PagesController@salles', 'sallespage');
+// FORMATIONS
+
+$router->get('/formations', 'FormationController@index', 'formationspage');
+$router->get('/formations/new', 'FormationController@store', 'formationsnewpage');
+$router->post('/formations/new', 'FormationController@store');
+$router->get('/formations/edit/:id', 'FormationController@edit', 'formationseditpage');
+$router->put('/formations/edit/:id', 'FormationController@edit');
+$router->get('/formations/:id', 'FormationController@show', 'formationsshowpage');
+$router->delete('/formations/:id', 'FormationController@delete');
+
+
+// SALLES
+
+$router->get('/salles', 'SalleController@index', 'sallespage');
+$router->get('/salles/new', 'SalleController@store', 'sallesnewpage');
+$router->post('/salles/new', 'SalleController@store');
+$router->get('/salles/edit/:id', 'SalleController@edit', 'salleseditpage');
+$router->put('/salles/edit/:id', 'SalleController@edit');
+$router->get('/salles/:id', 'SalleController@show', 'sallesshowpage');
+$router->delete('/salles/:id', 'SalleController@delete');
+
+
+$router->get('/notes', 'PagesController@notes', 'notespage');
+
 $router->get('/horaires', 'PagesController@horaires', 'horairespage');
 $router->get('/absences', 'PagesController@absences', 'absencespage');
 $router->get('/etudiants', 'PagesController@etudiants', 'etudiantspage');
@@ -40,8 +58,6 @@ $router->get('/enseignants', 'PagesController@enseignants', 'enseignantspage');
 
 $router->get('/admin/index', 'PagesController@adminhome', 'adminhomepage');
 $router->get('/admin/absences', 'PagesController@adminabsences', 'adminabsencespage');
-$router->get('/etudiant/index', 'PagesController@etudianthome', 'etudianthomepage');
-$router->get('/enseignant/index', 'PagesController@enseignanthome', 'enseignanthomepage');
 $router->get('/personnel_administratif/index', 'PagesController@personneladminhome', 'personneladminhomepage');
 
 

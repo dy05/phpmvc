@@ -69,7 +69,7 @@ abstract class DB
     }
 
     /**
-     * @return PDO
+     * @return PDO|null
      */
     public static function getPDO(): PDO
     {
