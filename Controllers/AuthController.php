@@ -16,19 +16,27 @@ class AuthController extends Controller
 
     public function user()
     {
-        var_dump($this->session['auth']);
-        die();
+        $this->render('account.php', [
+            'page_name' => 'account',
+            'user' => static::getActiveUser($this->session['auth']->id),
+        ]);
+    }
+
+    public function updateUser()
+    {
         $data = [
             'page_name' => 'account',
+            'roles' => static::getRoles(),
             'errors' => [],
-            'user' => User::staticQuery('SELECT * FROM users WHERE id = ' . $this->session['auth']->id),
+            'user' => static::getActiveUser($this->session['auth']->id),
         ];
 
-        if (!empty($this->postData)) {
+        if (! empty($this->postData)) {
             $errors = [];
             $nom = $this->postData['nom'];
             $prenom = $this->postData['prenom'];
             $password = $this->postData['mdp'];
+            $roleId = $this->postData['role_id'];
 
             if (empty($nom) || !preg_match('/^[a-zA-Z0-9_]+$/', $nom)) {
                 $errors['nom'] = "Vous n'avez pas entrer de nom.";
@@ -38,8 +46,13 @@ class AuthController extends Controller
                 $errors['prenom'] = "Vous n'avez pas entrer de prenom.";
             }
 
+            if (empty($roleId)) {
+                $errors['role_id'] = "Le champs role est obligatoire.";
+            }
+
             try {
-                $email = static::getEmail($nom, $prenom);
+//                $email = static::getEmail($nom, $prenom);
+                $email = $data['user']->email;
 
                 if (! empty($password) && empty($this->postData['mdp_confirm'])) {
                     $errors['mdp'] = "Vous n'avez pas entrer les deux mots de passe.";
@@ -54,9 +67,10 @@ class AuthController extends Controller
                         $nom,
                         $prenom,
                         $email,
+                        $roleId,
                     ];
 
-                    $sqlString = "UPDATE users SET nom = ?, prenom = ?, email = ?";
+                    $sqlString = "UPDATE users SET nom = ?, prenom = ?, email = ?, role_id = ?";
                     if (! empty($password)) {
                         $sqlString .= ", mdp = ?";
                         $fields[] = password_hash($password, PASSWORD_BCRYPT);
@@ -67,6 +81,7 @@ class AuthController extends Controller
 
                     if ($req->execute($fields)) {
                         $_SESSION['flash'] = ['success' => 'Compte modifie avec succes.'];
+                        $_SESSION['auth'] = static::getActiveUser($this->session['auth']->id);
                         header('Location:' . ROUTE . '/');
                     }
                 }
@@ -77,13 +92,11 @@ class AuthController extends Controller
             $data['errors'] = $errors;
         }
 
-        $this->render('account.php', $data);
+        $this->render('account_edit.php', $data);
     }
 
     public function logout()
     {
-        setcookie('remember', NULL, -1);
-        session_destroy();
-        header('Location:' . ROUTE . '/login');
+        static::signOut();
     }
 }

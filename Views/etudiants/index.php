@@ -5,68 +5,40 @@ $title = "Gestion des etudiants";
 
 <div class="d-flex mb-3">
     <h2>Gestion des etudiants</h2>
-    <a href="<?= ROUTE . '/etudiants'; ?>" class="btn btn-primary ml-auto">
-        <i class="fa fa-list"></i>
-        Liste des etudiants
+    <a href="<?= ROUTE . '/etudiants/new'; ?>" class="btn btn-primary ml-auto">
+        <i class="fa fa-plus"></i>
+        Ajouter un etudiant
     </a>
 </div>
 
 <div class="col-md-12">
     <div class="content-panel">
-        <form action="" method="POST">
-            <?php if (! empty($errors)): ?>
-                <div class="alert alert-danger">
-                    <ul>
-                        <?php foreach ($errors as $error): ?>
-                            <?= "<li>$error</li>"; ?>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
-
-            <div class="form-group">
-                <label for="nom" class="form-label">
-                    Nom 
-                </label>
-                <input class="form-control" type="text" id="nom" name="nom" placeholder="RGPD" value="<?= $old['nom'] ?? null; ?>" required />
-            </div>
-
-            <div class="form-group">
-                <label for="prenom" class="form-label">
-                    Prenom 
-                </label>
-                <input class="form-control" type="text" id="prenom" name="prenom" placeholder="RGPD" value="<?= $old['prenom'] ?? null; ?>" required />
-            </div>
-
-            <div class="form-group">
-                <label for="email" class="form-label">
-                    Email
-                </label>
-                <input class="form-control" type="text" id="email" name="email" placeholder="RGPD" value="<?= $old['email'] ?? null; ?>" required />
-            </div>
-
-            <div class="form-group">
-                <label for="mdp" class="form-label">
-                    Mot de passe
-                </label>
-                <input class="form-control" type="text" id="mdp" name="mdp" placeholder="RGPD" value="<?= $old['email'] ?? null; ?>" required />
-            </div>
-
-            <div class="form-group">
-                <label for="status" class="form-label">
-                    Status
-                </label>
-                <input class="form-control" type="text" id="status" name="status" placeholder="RGPD" value="<?= $old['status'] ?? null; ?>" required />
-            </div>
-            
-            <div class="flex">
-                <button class="btn btn-primary" type="submit">
-                    Creer
-                </button>
-                <button class="btn btn-secondary ml-auto" type="reset">
-                    Reset
-                </button>
-            </div>
-        </form>
+        <table class="table table-striped table-advance table-hover">
+            <thead>
+            <tr>
+                <th>Noms</th>
+                <th>Prenoms</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach($etudiants as $student): ?>
+                <tr>
+                    <td><?= ucfirst($student->nom); ?></td>
+                    <td><?= ucfirst($student->prenom); ?></td>
+                    <td><?= ucfirst($student->email); ?></td>
+                    <td>
+                        <a href="<?= ROUTE . '/users/user/' . $student->id; ?>" class="btn btn-outline-primary btn-xs">
+                            <i class="fa fa-eye"></i>
+                        </a>
+                        <a href="<?= ROUTE . '/users/user/' . $student->id; ?>" class="btn btn-danger btn-xs">
+                            <i class="fa fa-trash-alt "></i>
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 </div>

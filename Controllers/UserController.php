@@ -24,6 +24,7 @@ class UserController extends Controller
         $data = [
             'page_name' => 'usersnewpage',
             'old' => $this->postData,
+            'roles' => static::getRoles(),
             'errors' => [],
         ];
 
@@ -32,6 +33,8 @@ class UserController extends Controller
 
             $nom = $this->postData['nom'];
             $prenom = $this->postData['prenom'];
+            $password = $this->postData['mdp'];
+            $roleId = $this->postData['role_id'];
 
             if (empty($nom)) {
                 $errors['nom'] = "Le champs nom est obligatoire.";
@@ -41,7 +44,11 @@ class UserController extends Controller
                 $errors['prenom'] = "Le champs prenom est obligatoire.";
             }
 
-            if (empty($this->postData['mdp'])) {
+            if (empty($roleId)) {
+                $errors['role_id'] = "Le champs role est obligatoire.";
+            }
+
+            if (empty($password)) {
                 $errors['mdp'] = "Vous n'avez pas entrer de mot de passe";
             }
 
@@ -49,7 +56,7 @@ class UserController extends Controller
                 $errors['mdp'] = "Vous n'avez pas entrer les deux mots de passe";
             }
 
-            if ($this->postData['mdp'] !== $this->postData['mdp_confirm']) {
+            if ($password !== $this->postData['mdp_confirm']) {
                 $errors['mdp'] = "Les deux mots de passe ne correspondent pas";
             }
 
@@ -59,12 +66,14 @@ class UserController extends Controller
 
                 if (empty($errors)) {
                     $pdo = User::getPDO();
-                    $req = $pdo->prepare("INSERT INTO users SET nom = ?, prenom = ?, email = ?");
+                    $req = $pdo->prepare("INSERT INTO users SET nom = ?, prenom = ?, email = ?, mdp = ?");
                     $req->execute([
                         $nom,
                         $prenom,
                         $email,
+                        password_hash($password, PASSWORD_BCRYPT),
                     ]);
+
                     if ($pdo->lastInsertId()) {
                         $_SESSION['flash'] = ['success' => "l'utilisateur a bien été ajouté."];
                         header('Location:' . ROUTE . '/users');
@@ -80,7 +89,7 @@ class UserController extends Controller
         $this->render('users/users_create.php', $data);
     }
 
-    public function show(int $id = null, bool $withTrashed = false)
+    public function show(int $id, bool $withTrashed = true)
     {
         $user = $withTrashed
             ? User::staticQuery('SELECT * FROM users WHERE id = ?', [$id], true)
@@ -108,6 +117,7 @@ class UserController extends Controller
 
         $data = [
             'user' => $user,
+            'roles' => static::getRoles(),
             'errors' => [],
         ];
 
@@ -116,6 +126,8 @@ class UserController extends Controller
 
             $nom = $this->postData['nom'];
             $prenom = $this->postData['prenom'];
+            $roleId = $this->postData['role_id'];
+            $password = $this->postData['mdp'];
             if (empty($nom)) {
                 $errors['nom'] = "Le champs nom est obligatoire.";
             }
@@ -124,20 +136,39 @@ class UserController extends Controller
                 $errors['prenom'] = "Le champs prenom est obligatoire.";
             }
 
+            if (empty($roleId)) {
+                $errors['role_id'] = "Le champs role est obligatoire.";
+            }
+
+            if (! empty($password) && empty($this->postData['mdp_confirm'])) {
+                $errors['mdp'] = "Vous n'avez pas entrer les deux mots de passe";
+            }
+
+            if (! empty($password) && $password !== $this->postData['mdp_confirm']) {
+                $errors['mdp'] = "Les deux mots de passe ne correspondent pas";
+            }
 
 //            $email = $this->postData['email'];
             try {
                 $email = static::getEmail($nom, $prenom);
 
                 if (empty($errors)) {
-                    $pdo = User::getPDO();
-                    $req = $pdo->prepare("UPDATE users SET nom = :nom, prenom = :prenom, email = :email WHERE id = :id");
-                    $result = $req->execute([
+                    $fields = [
                         ':nom' => $nom,
                         ':prenom' => $prenom,
                         ':email' => $email,
+                        ':role_id' => $roleId,
                         ':id' => $id,
-                    ]);
+                    ];
+
+                    $sqlString = "UPDATE users SET nom = :nom, prenom = :prenom, email = :email, role_id = :role_id";
+                    if (! empty($password)) {
+                        $sqlString .= ", mdp = :mdp";
+                        $fields[':mdp'] = password_hash($password, PASSWORD_BCRYPT);
+                    }
+
+                    $req = User::getPDO()->prepare($sqlString . ' WHERE id = :id');
+                    $result = $req->execute($fields);
 
                     if ($result) {
                         $_SESSION['flash'] = ['success' => "l'utilisateur a bien été modifié."];
@@ -171,6 +202,10 @@ class UserController extends Controller
             }
         } catch (Exception $exc) {
             $_SESSION['flash'] = ['error' => $exc->getCode() > 0 ? 'Erreur innatendue.' : $exc->getMessage()];
+        }
+
+        if ($id === (int) $this->session['auth']->id) {
+            static::signOut();
         }
 
         header('Location:' . ROUTE . '/users');

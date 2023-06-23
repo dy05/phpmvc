@@ -31,15 +31,15 @@ $title = "Gestion des formations";
                     <td><?= $formation->duree ?? ''; ?></td>
                     <td><?= $formation->niveau ?? ''; ?></td>
                     <td>
-                        <a href="<?= ROUTE . '/formations/'.$formation->id; ?>" class="btn btn-info btn-xs">
+                        <a href="<?= ROUTE . '/formations/formation/' . $formation->id; ?>" class="btn btn-info btn-xs">
                             <i class="fa fa-eye"></i>
                         </a>
-                        <a href="<?= ROUTE . '/formations/edit/'.$formation->id; ?>" class="btn btn-outline-primary btn-xs">
+                        <a href="<?= ROUTE . '/formations/edit/' . $formation->id; ?>" class="btn btn-outline-primary btn-xs">
                             <i class="fa fa-pencil-alt"></i>
                         </a>
-                        <form action="<?= ROUTE . '/formations/delete/'.$formation->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer cette formation ?')">
+                        <form action="<?= ROUTE . '/formations/formation/' . $formation->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer cette formation ?')">
                             <input type="hidden" name="_method" value="DELETE" />
-                            <button type="submit" href="<?= ROUTE . '/formations/delete/'.$formation->id; ?>" class="btn btn-danger btn-xs">
+                            <button type="submit" href="<?= ROUTE . '/formations/formation/' . $formation->id; ?>" class="btn btn-danger btn-xs">
                                 <i class="fa fa-trash-alt "></i>
                             </button>
                         </form>

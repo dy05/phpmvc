@@ -2,6 +2,7 @@
 
 namespace RBAC\Controllers;
 
+use RBAC\Models\Role;
 use RBAC\Models\User;
 
 abstract class Controller
@@ -69,7 +70,7 @@ abstract class Controller
      */
     public static function getEmail(string $nom, string $prenom): string
     {
-        $email = $prenom . '.' . $nom . '@efrei.fr';
+        $email = static::slugify($prenom) . '.' . static::slugify($nom) . '@efrei.fr';
 
         $i = 0;
         do {
@@ -101,11 +102,12 @@ abstract class Controller
         if (isset($_COOKIE['remember'])) {
             $cookies = explode('//', $_COOKIE['remember']);
             $user_id = $cookies[0];
-            $user = User::find(['id' => $user_id],'id, username, remember_token');
+//            $user = User::find(['id' => $user_id],'id, username, remember_token');
+            $user = User::find(['id' => $user_id]);
             $test = $user_id . '//' . $user->remember_token . sha1($user_id . time());
 
             if ($test === $_COOKIE['remember']) {
-                User::staticQuery('UPDATE users SET confirmed_at = NOW() WHERE id = ?', [$user_id], true, false);
+//                User::staticQuery('UPDATE users SET confirmed_at = NOW() WHERE id = ?', [$user_id], true, false);
                 $_SESSION['auth'] = $user;
                 header('Location:' . ROUTE . '/');
             } else {
@@ -178,5 +180,37 @@ abstract class Controller
         $this->render('error.php', [
             'page_name' => 'error'
         ]);
+    }
+
+    public static function signOut()
+    {
+        setcookie('remember', NULL, -1);
+        session_destroy();
+        header('Location:' . ROUTE . '/login');
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function getRoles(): array
+    {
+//        return [
+//            0 => 'Admin',
+//            1 => 'Manager',
+//            2 => 'Teacher',
+//            3 => 'Student',
+//        ];
+
+        return Role::staticQuery('SELECT * FROM roles');
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return User|mixed
+     */
+    public static function getActiveUser(int $id)
+    {
+        return User::staticQuery('SELECT * FROM users WHERE id = ?', [$id], true);
     }
 }

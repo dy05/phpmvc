@@ -40,20 +40,20 @@ class PagesController extends Controller
     {
         $this->redirectIfNotConnect();
 
-        $sqlString = "SELECT users.*, group_concat(DISTINCT roles.code SEPARATOR ', ') as roles FROM users"
-            . " INNER JOIN user_role ON user_role.user_id = users.id INNER JOIN roles ON roles.id = user_role.role_id"
-            . " WHERE roles.code = 'student'"
-            . " GROUP BY users.id";
-        $users = User::staticQuery($sqlString);
-//        $query = User::staticQuery($sqlString);
+//        $sqlString = "SELECT users.*, group_concat(DISTINCT roles.code SEPARATOR ', ') as roles FROM users"
+//            . " INNER JOIN user_role ON user_role.user_id = users.id INNER JOIN roles ON roles.id = user_role.role_id"
+//            . " WHERE roles.code = 'student'"
+//            . " GROUP BY users.id";
+//        $users = User::staticQuery($sqlString);
+
 //        $query = User::getPDO()->prepare($sqlString);
 //        $query->setFetchMode(PDO::FETCH_CLASS, User::class);
 //        $query->execute();
 //        $users = $query->fetchAll();
 
-        $this->render('etudiants.php', [
+        $this->render('etudiants/index.php', [
             'page_name' => 'etudiantsspage',
-            'etudiants' => $users,
+            'etudiants' => User::staticQuery("SELECT * FROM users"),
         ]);
     }
 }

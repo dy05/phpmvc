@@ -44,9 +44,9 @@ $title = "Gestion des formations";
                 Editer
             </a>
 
-            <form action="<?= ROUTE . '/formations/delete/'.$formation->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer cette formation ?')">
+            <form action="<?= ROUTE . '/formations/formation/' . $formation->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer cette formation ?')">
                 <input type="hidden" name="_method" value="DELETE" />
-                <button type="submit" href="<?= ROUTE . '/formations/delete/'.$formation->id; ?>" class="btn btn-danger btn-xs">
+                <button type="submit" href="<?= ROUTE . '/formations/formation/' . $formation->id; ?>" class="btn btn-danger btn-xs">
                     <i class="fa fa-trash-alt mr-2"></i>
                     Supprimer
                 </button>

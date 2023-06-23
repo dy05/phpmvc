@@ -31,9 +31,9 @@ $title = "Gestion des salles";
                 Editer
             </a>
 
-            <form action="<?= ROUTE . '/salles/delete/'.$salle->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer cette salle ?')">
+            <form action="<?= ROUTE . '/salles/salle/' . $salle->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer cette salle ?')">
                 <input type="hidden" name="_method" value="DELETE" />
-                <button type="submit" href="<?= ROUTE . '/salles/delete/'.$salle->id; ?>" class="btn btn-danger btn-xs">
+                <button type="submit" href="<?= ROUTE . '/salles/salle/' . $salle->id; ?>" class="btn btn-danger btn-xs">
                     <i class="fa fa-trash-alt mr-2"></i>
                     Supprimer
                 </button>

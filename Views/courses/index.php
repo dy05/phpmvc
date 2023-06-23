@@ -31,15 +31,15 @@ $title = "Gestion des cours";
                     <td><?= $course->duree ?? ''; ?></td>
                     <td><?= $course->niveau ?? ''; ?></td>
                     <td>
-                        <a href="<?= ROUTE . '/cours/'.$course->id; ?>" class="btn btn-info btn-xs">
+                        <a href="<?= ROUTE . '/cours/course/'.$course->id; ?>" class="btn btn-info btn-xs">
                             <i class="fa fa-eye"></i>
                         </a>
                         <a href="<?= ROUTE . '/cours/edit/'.$course->id; ?>" class="btn btn-outline-primary btn-xs">
                             <i class="fa fa-pencil-alt"></i>
                         </a>
-                        <form action="<?= ROUTE . '/cours/delete/'.$course->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer ce cours ?')">
+                        <form action="<?= ROUTE . '/cours/course/'.$course->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer ce cours ?')">
                             <input type="hidden" name="_method" value="DELETE" />
-                            <button type="submit" href="<?= ROUTE . '/cours/delete/'.$course->id; ?>" class="btn btn-danger btn-xs">
+                            <button type="submit" href="<?= ROUTE . '/cours/course/'.$course->id; ?>" class="btn btn-danger btn-xs">
                                 <i class="fa fa-trash-alt "></i>
                             </button>
                         </form>

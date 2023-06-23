@@ -9,6 +9,9 @@ class User extends DB {
     public $email;
     public $mdp;
     public $statut;
+    public $role_id;
+
+    public static $role = null;
 
     public static function findAll($datas = [], $keys = '*', $one = false)
     {
@@ -93,9 +96,16 @@ class User extends DB {
         return $result;
     }
 
-    public static function findByEmail(string $email, $withRole = false)
+    public static function findByEmail(string $email, $withRole = false, $withTrashed = false)
     {
-        $sqlString = "SELECT users.* FROM users WHERE email = ?";
+        $sqlString = "SELECT users.* FROM users WHERE";
+
+        if (! $withTrashed) {
+            $sqlString .= " deleted_at IS NULL AND";
+        }
+
+        $sqlString .= " email = ?";
+
         if ($withRole) {
 //            $sqlString = "SELECT users.*,
 // roles.name as role FROM users LEFT JOIN user_role ON user_role.user_id = users.id LEFT JOIN roles ON roles.id = user_role.role_id WHERE email = ?";
@@ -109,15 +119,26 @@ class User extends DB {
     }
 
     /**
-     * @param string $role
+     * @param int $roleId
      *
+     * @return Role|mixed
+     */
+    public function getRole(int $roleId)
+    {
+        if (! static::$role) {
+            static::$role = Role::staticQuery('SELECT * roles WHERE id = :id', [$roleId], true);
+        }
+
+        return static::$role;
+    }
+
+    /**
      * @return bool
      */
-    public function hasRole(string $role): bool
+    public function isStudent(): bool
     {
-        $roles = explode(', ', $this->roles ?? '');
-        if (in_array($role, $roles)) {
-            return true;
+        if ($role = $this->getRole($this->role_id)) {
+            return strtolower($role->code) === 'student';
         }
 
         return false;
@@ -126,16 +147,12 @@ class User extends DB {
     /**
      * @return bool
      */
-    public function isStudent(): bool
-    {
-        return $this->hasRole('student');
-    }
-
-    /**
-     * @return bool
-     */
     public function isAdmin(): bool
     {
-        return $this->hasRole('admin');
+        if ($role = $this->getRole($this->role_id)) {
+            return strtolower($role->code) === 'admin';
+        }
+
+        return false;
     }
 }

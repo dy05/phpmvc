@@ -27,15 +27,15 @@ $title = "Gestion des salles";
                     <td><?= ucfirst($salle->nom); ?></td>
                     <td><?= ucfirst($salle->capacite ?? ''); ?></td>
                     <td>
-                        <a href="<?= ROUTE . '/salles/'.$salle->id; ?>" class="btn btn-info btn-xs">
+                        <a href="<?= ROUTE . '/salles/salle/' . $salle->id; ?>" class="btn btn-info btn-xs">
                             <i class="fa fa-eye"></i>
                         </a>
-                        <a href="<?= ROUTE . '/salles/edit/'.$salle->id; ?>" class="btn btn-outline-primary btn-xs">
+                        <a href="<?= ROUTE . '/salles/edit/' . $salle->id; ?>" class="btn btn-outline-primary btn-xs">
                             <i class="fa fa-pencil-alt"></i>
                         </a>
-                        <form action="<?= ROUTE . '/salles/delete/'.$salle->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer cette salle ?')">
+                        <form action="<?= ROUTE . '/salles/salle/' . $salle->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer cette salle ?')">
                             <input type="hidden" name="_method" value="DELETE" />
-                            <button type="submit" href="<?= ROUTE . '/salles/delete/'.$salle->id; ?>" class="btn btn-danger btn-xs">
+                            <button type="submit" href="<?= ROUTE . '/salles/salle/' . $salle->id; ?>" class="btn btn-danger btn-xs">
                                 <i class="fa fa-trash-alt "></i>
                             </button>
                         </form>
