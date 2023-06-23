@@ -37,12 +37,20 @@ $title = "Gestion des utilisateurs";
                         <a href="<?= ROUTE . '/users/edit/' . $user->id; ?>" class="btn btn-outline-primary btn-xs">
                             <i class="fa fa-pencil-alt"></i>
                         </a>
-                        <form action="<?= ROUTE . '/users/user/' . $user->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer cet utilisateur ?')">
-                            <input type="hidden" name="_method" value="DELETE" />
-                            <button type="submit" href="<?= ROUTE . '/users/user/' . $user->id; ?>" class="btn btn-danger btn-xs">
-                                <i class="fa fa-trash-alt "></i>
-                            </button>
-                        </form>
+                        <?php if (! $user->deleted_at): ?>
+                            <form action="<?= ROUTE . '/users/user/' . $user->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer cet utilisateur ?')">
+                                <input type="hidden" name="_method" value="DELETE" />
+                                <button type="submit" href="<?= ROUTE . '/users/user/' . $user->id; ?>" class="btn btn-danger btn-xs">
+                                    <i class="fa fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        <?php else: ?>
+                            <form action="<?= ROUTE . '/users/restore/' . $user->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment restorer cet utilisateur ?')">
+                                <button type="submit" href="<?= ROUTE . '/users/user/' . $user->id; ?>" class="btn btn-info btn-xs">
+                                    <i class="fa fa-recycle"></i>
+                                </button>
+                            </form>
+                        <?php endif; ?>
                     </td>
                 </tr>
             <?php endforeach; ?>

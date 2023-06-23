@@ -25,6 +25,7 @@ $router->get('/users/edit/:id', 'UserController@edit', 'userseditpage');
 $router->put('/users/edit/:id', 'UserController@edit');
 $router->get('/users/user/:id', 'UserController@show', 'usersshow');
 $router->delete('/users/user/:id', 'UserController@delete');
+$router->post('/users/restore/:id', 'UserController@restore', 'users.restore');
 
 
 // COURSES

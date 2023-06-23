@@ -32,6 +32,12 @@ $title = "Gestion des utilisateurs";
             </p>
         </div>
         <div>
+            <h3>Statut</h3>
+            <p>
+                <?= $user->deleted_at ? 'Desactive' : 'Actif'; ?>
+            </p>
+        </div>
+        <div>
             <h3>Formations</h3>
             <div>
                 <ul>
@@ -70,6 +76,7 @@ $title = "Gestion des utilisateurs";
                 Editer
             </a>
 
+            <?php if (! $user->deleted_at): ?>
             <form action="<?= ROUTE . '/users/user/' . $user->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer cet utilisateur ?')">
                 <input type="hidden" name="_method" value="DELETE" />
                 <button type="submit" href="<?= ROUTE . '/users/user/' . $user->id; ?>" class="btn btn-danger btn-xs">
@@ -77,6 +84,14 @@ $title = "Gestion des utilisateurs";
                     Supprimer
                 </button>
             </form>
+            <?php else: ?>
+            <form action="<?= ROUTE . '/users/restore/' . $user->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment restorer cet utilisateur ?')">
+                <button type="submit" href="<?= ROUTE . '/users/user/' . $user->id; ?>" class="btn btn-info btn-xs">
+                    <i class="fa fa-recycle mr-2"></i>
+                    Restore
+                </button>
+            </form>
+            <?php endif; ?>
         </div>
     </div>
 </div>

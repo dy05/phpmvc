@@ -9,6 +9,7 @@ class User extends DB {
     public $email;
     public $mdp;
     public $statut;
+    public $deleted_at;
     public $role_id;
 
     public static $role = null;

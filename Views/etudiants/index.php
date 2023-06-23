@@ -33,7 +33,7 @@ $title = "Gestion des etudiants";
                             <i class="fa fa-eye"></i>
                         </a>
                         <a href="<?= ROUTE . '/users/user/' . $student->id; ?>" class="btn btn-danger btn-xs">
-                            <i class="fa fa-trash-alt "></i>
+                            <i class="fa fa-trash-alt"></i>
                         </a>
                     </td>
                 </tr>

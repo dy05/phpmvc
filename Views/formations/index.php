@@ -40,7 +40,7 @@ $title = "Gestion des formations";
                         <form action="<?= ROUTE . '/formations/formation/' . $formation->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer cette formation ?')">
                             <input type="hidden" name="_method" value="DELETE" />
                             <button type="submit" href="<?= ROUTE . '/formations/formation/' . $formation->id; ?>" class="btn btn-danger btn-xs">
-                                <i class="fa fa-trash-alt "></i>
+                                <i class="fa fa-trash-alt"></i>
                             </button>
                         </form>
                     </td>

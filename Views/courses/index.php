@@ -40,7 +40,7 @@ $title = "Gestion des cours";
                         <form action="<?= ROUTE . '/cours/course/'.$course->id; ?>" method="POST" style="display: inline-block" onsubmit="return confirm('Voulez vous vraiment supprimer ce cours ?')">
                             <input type="hidden" name="_method" value="DELETE" />
                             <button type="submit" href="<?= ROUTE . '/cours/course/'.$course->id; ?>" class="btn btn-danger btn-xs">
-                                <i class="fa fa-trash-alt "></i>
+                                <i class="fa fa-trash-alt"></i>
                             </button>
                         </form>
                     </td>

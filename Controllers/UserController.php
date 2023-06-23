@@ -75,7 +75,7 @@ class UserController extends Controller
                     ]);
 
                     if ($pdo->lastInsertId()) {
-                        $_SESSION['flash'] = ['success' => "l'utilisateur a bien été ajouté."];
+                        $_SESSION['flash'] = ['success' => "L'utilisateur a bien été ajouté."];
                         header('Location:' . ROUTE . '/users');
                     }
                 }
@@ -171,7 +171,7 @@ class UserController extends Controller
                     $result = $req->execute($fields);
 
                     if ($result) {
-                        $_SESSION['flash'] = ['success' => "l'utilisateur a bien été modifié."];
+                        $_SESSION['flash'] = ['success' => "L'utilisateur a bien été modifié."];
                         header('Location:' . ROUTE . '/users');
                     }
                 }
@@ -185,18 +185,23 @@ class UserController extends Controller
         $this->render('users/users_edit.php', $data);
     }
 
-    public function delete(int $id = null)
+    public function restore(int $id = null)
     {
-        $user = User::staticQuery('SELECT * FROM users WHERE deleted_at IS NULL AND id = ?', [$id], true);
+        $user = User::staticQuery('SELECT * FROM users WHERE id = ?', [$id], true);
         if (! $user) {
             $this->callErrorPage();
             return;
         }
 
+        if (! $user->deleted_at) {
+            $_SESSION['flash'] = ['success' => "L'utilisateur est actif."];
+            header('Location:' . ROUTE . '/users');
+        }
+
         try {
-            $req = User::getPDO()->query('UPDATE users SET deleted_at = CURRENT_DATE WHERE id = ' . $id);
+            $req = User::getPDO()->query('UPDATE users SET deleted_at = NULL WHERE id = ' . $id);
             if ($req->execute()) {
-                $_SESSION['flash'] = ['success' => "l'utilisateur a été supprimé avec succès."];
+                $_SESSION['flash'] = ['success' => "L'utilisateur a été restauré avec succès."];
             } else {
                 $_SESSION['flash'] = ['error' => 'Erreur innatendue.'];
             }
@@ -204,8 +209,34 @@ class UserController extends Controller
             $_SESSION['flash'] = ['error' => $exc->getCode() > 0 ? 'Erreur innatendue.' : $exc->getMessage()];
         }
 
-        if ($id === (int) $this->session['auth']->id) {
-            static::signOut();
+        header('Location:' . ROUTE . '/users');
+    }
+
+    public function delete(int $id = null)
+    {
+        $user = User::staticQuery('SELECT * FROM users WHERE id = ?', [$id], true);
+        if (! $user) {
+            $this->callErrorPage();
+            return;
+        }
+
+        if ($user->deleted_at) {
+            $_SESSION['flash'] = ['success' => "L'utilisateur a deja été supprimé."];
+        } else {
+            try {
+                $req = User::getPDO()->query('UPDATE users SET deleted_at = CURRENT_DATE WHERE id = ' . $id);
+                if ($req->execute()) {
+                    $_SESSION['flash'] = ['success' => "L'utilisateur a été supprimé avec succès."];
+                } else {
+                    $_SESSION['flash'] = ['error' => 'Erreur innatendue.'];
+                }
+            } catch (Exception $exc) {
+                $_SESSION['flash'] = ['error' => $exc->getCode() > 0 ? 'Erreur innatendue.' : $exc->getMessage()];
+            }
+
+            if ($id === (int)$this->session['auth']->id) {
+                static::signOut();
+            }
         }
 
         header('Location:' . ROUTE . '/users');
@@ -222,7 +253,7 @@ class UserController extends Controller
         try {
             $req = User::getPDO()->query('DELETE FROM users WHERE id = ' . $id);
             if ($req->execute()) {
-                $_SESSION['flash'] = ['success' => "l'utilisateur a été supprimé avec succès."];
+                $_SESSION['flash'] = ['success' => "L'utilisateur a été supprimé avec succès."];
             } else {
                 $_SESSION['flash'] = ['error' => 'Erreur innatendue.'];
             }
