@@ -32,9 +32,12 @@ class CourseController extends Controller
                 $errors['nom'] = "Le champs nom est obligatoire.";
             }
 
-            $duree = $this->postData['duree'];
+            $duree = $this->postData['duree'] ?? null;
             if ($duree && ! is_numeric($duree)) {
-                unset($data['old']['duree']);
+                if (isset($data['old']['duree'])) {
+                    unset($data['old']['duree']);
+                }
+
                 $errors['duree'] = "Le champs duree doit etre un entier valide.";
             }
 
@@ -103,7 +106,7 @@ class CourseController extends Controller
                 $errors['nom'] = "Le champs nom est obligatoire.";
             }
 
-            $duree = $this->postData['duree'];
+            $duree = $this->postData['duree'] ?? null;
             if ($duree && ! is_numeric($duree)) {
                 $errors['duree'] = "Le champs duree doit etre un entier valide.";
             }

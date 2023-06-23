@@ -53,7 +53,17 @@ class PagesController extends Controller
 
         $this->render('etudiants/index.php', [
             'page_name' => 'etudiantsspage',
-            'etudiants' => User::staticQuery("SELECT * FROM users"),
+            'etudiants' => User::staticQuery("SELECT users.* FROM users LEFT JOIN roles ON roles.id = users.role_id WHERE roles.code = 'student'"),
+        ]);
+    }
+
+    public function enseignants()
+    {
+        $this->redirectIfNotConnect();
+
+        $this->render('enseignants/index.php', [
+            'page_name' => 'enseignantsspage',
+            'enseignants' => User::staticQuery("SELECT users.* FROM users LEFT JOIN roles ON roles.id = users.role_id WHERE roles.code = 'teacher'"),
         ]);
     }
 }

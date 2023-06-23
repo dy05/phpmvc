@@ -8,4 +8,5 @@ class Formation extends DB {
     public $code;
     public $niveau;
     public $duree;
+    public $courses;
 }

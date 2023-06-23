@@ -10,11 +10,14 @@ class FormationController extends Controller
     public function index()
     {
         $this->redirectIfNotConnect();
-        $formation = Formation::staticQuery("SELECT * FROM formations");
+//        $formations = Formation::staticQuery("SELECT formations.*, group_concat(DISTINCT courses.nom SEPARATOR ', ') as courses FROM formations LEFT JOIN formation_course ON formations.id = formation_course.formation_id LEFT JOIN courses ON courses.id = formation_course.course_id GROUP BY formations.id");
+        $formations = Formation::staticQuery("SELECT formations.*, courses.nom as course FROM formations LEFT JOIN formation_course ON formations.id = formation_course.formation_id LEFT JOIN courses ON courses.id = formation_course.course_id GROUP BY formations.id, course");
 
+        var_dump($formations);
+        die();
         $this->render('formations/index.php', [
             'page_name' => 'formationspage',
-            'formations' => $formation
+            'formations' => $formations
         ]);
     }
 
@@ -24,6 +27,7 @@ class FormationController extends Controller
         $errors = array();
         $data = [
             'page_name' => 'formationsnewpage',
+            'courses' => static::getCourses(),
             'old' => $this->postData
         ];
 
@@ -32,13 +36,21 @@ class FormationController extends Controller
                 $errors['nom'] = "Le champs nom est obligatoire.";
             }
 
-            $duree = $this->postData['duree'];
+            $duree = $this->postData['duree'] ?? null;
             if ($duree && ! is_numeric($duree)) {
-                unset($data['old']['duree']);
+                if (isset($data['old']['duree'])) {
+                    unset($data['old']['duree']);
+                }
+
                 $errors['duree'] = "Le champs duree doit etre un entier valide.";
             }
 
-            $niveau = $this->postData['niveau'];
+            $courseIds = $this->postData['courses'] ?? [];
+            if (! count($courseIds)) {
+                $errors['courseIds'] = "Vous devez selectionner au moins un cours valide.";
+            }
+
+            $niveau = $this->postData['niveau'] ?? '';
             if (! empty($niveau) && ! in_array($niveau, ['Bac + 1', 'Bac + 2', 'Bac + 3'])) {
                 $errors['niveau'] = "Le champs niveau n'est pas valide.";
             }
@@ -53,7 +65,18 @@ class FormationController extends Controller
 
                     $req = $pdo->prepare("INSERT INTO formations SET nom = ?, duree = ?, niveau = ?, code = ?");
                     $req->execute([$this->postData['nom'], $duree !== '' ? $duree : null, $niveau !== '' ? $niveau : null, $code]);
-                    if ($pdo->lastInsertId()) {
+                    if ($id = $pdo->lastInsertId()) {
+                        if (count($courseIds)) {
+                            $fields = [];
+                            $values = '';
+                            foreach ($courseIds as $courseId) {
+                                $fields[] = [$id, $courseId];
+                                $values .= '(?, ?), ';
+                            }
+
+                            Formation::getPDO()->prepare('INSERT INTO formation_couse (course_id, formation_id) VALUES ' . substr($values, -2), $fields);
+                        }
+
                         $_SESSION['flash'] = ['success' => 'la formation a bien été ajoutée.'];
                         header('Location:' . ROUTE . '/formations');
                     }
@@ -93,6 +116,8 @@ class FormationController extends Controller
 
         $data = [
             'formation' => $formation,
+            'formationCourseIds' => explode(', ', $formation->courses ?? ''),
+            'courses' => static::getCourses(),
         ];
 
         $errors = [];
@@ -102,14 +127,19 @@ class FormationController extends Controller
                 $errors['nom'] = "Le champs nom est obligatoire.";
             }
 
-            $duree = $this->postData['duree'];
+            $duree = $this->postData['duree'] ?? null;
             if ($duree && ! is_numeric($duree)) {
                 $errors['duree'] = "Le champs duree doit etre un entier valide.";
             }
 
-            $niveau = $this->postData['niveau'];
-            if (empty($niveau)) {
-                $niveau = self::slugify($this->postData['niveau']);
+            $courseIds = $this->postData['courses'] ?? [];
+            if (! count($courseIds)) {
+                $errors['courseIds'] = "Vous devez selectionner au moins un cours valide.";
+            }
+
+            $niveau = $this->postData['niveau'] ?? '';
+            if (! empty($niveau) && ! in_array($niveau, ['Bac + 1', 'Bac + 2', 'Bac + 3'])) {
+                $errors['niveau'] = "Le champs niveau n'est pas valide.";
             }
 
             if (empty($errors)) {
@@ -130,12 +160,39 @@ class FormationController extends Controller
                     ]);
 
                     if ($result) {
+                        // TODO: on selectionne les cours qui existe deja.
+                        // Si un cours existe deja et est dans notre liste, on ne fait rien
+                        $formationCourses = Formation::getPDO()->prepare('SELECT id, course_id FROM formation_couse WHERE formation_id = ?', [$id]);
+                        $deletedFormationCourseIds = [];
+                        foreach ($formationCourses as $formationCourse) {
+                            if (($key = array_search($formationCourse->course_id, $courseIds)) > -1) {
+                                unset($courseIds[$key]);
+                            } else {
+                                $deletedFormationCourseIds[] = $formationCourse->id;
+                            }
+                        }
+
+                        if (count($deletedFormationCourseIds)) {
+                            Formation::getPDO()->prepare('DELETE FROM formation_couse WHERE id IN (:ids)', [join(',', $deletedFormationCourseIds)]);
+                        }
+
+                        if (count($courseIds)) {
+                            $fields = [];
+                            $values = '';
+                            foreach ($courseIds as $courseId) {
+                                $fields[] = [$id, $courseId];
+                                $values .= '(?, ?), ';
+                            }
+
+                            Formation::getPDO()->prepare('INSERT INTO formation_couse (course_id, formation_id) VALUES ' . substr($values, -2), $fields);
+                        }
+
                         $_SESSION['flash'] = ['success' => 'la formation a bien été modifiée.'];
                         header('Location:' . ROUTE . '/formations');
                     }
                 } catch (Exception $exc) {
-//                    $errors['error'] = $exc->getCode() > 0 ? 'Erreur innatendue. ' : $exc->getMessage();
-                    $errors['error'] = $exc->getMessage();
+                    die($exc->getMessage());
+                    $errors['error'] = $exc->getCode() > 0 ? 'Erreur innatendue. ' : $exc->getMessage();
                 }
             }
 

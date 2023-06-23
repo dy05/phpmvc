@@ -11,8 +11,9 @@ class User extends DB {
     public $statut;
     public $deleted_at;
     public $role_id;
+    public $role;
 
-    public static $role = null;
+    public static $roleModel = null;
 
     public static function findAll($datas = [], $keys = '*', $one = false)
     {
@@ -126,11 +127,11 @@ class User extends DB {
      */
     public function getRole(int $roleId)
     {
-        if (! static::$role) {
-            static::$role = Role::staticQuery('SELECT * roles WHERE id = :id', [$roleId], true);
+        if (! static::$roleModel) {
+            static::$roleModel = Role::staticQuery('SELECT * roles WHERE id = :id', [$roleId], true);
         }
 
-        return static::$role;
+        return static::$roleModel;
     }
 
     /**

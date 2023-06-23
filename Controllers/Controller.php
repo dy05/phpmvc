@@ -2,6 +2,7 @@
 
 namespace RBAC\Controllers;
 
+use RBAC\Models\Course;
 use RBAC\Models\Role;
 use RBAC\Models\User;
 
@@ -16,8 +17,11 @@ abstract class Controller
         /**
          * Les 3 conditions suivantes permettent de sauvegarder dans les variables $post, $session, $cookies les  variables $_POST, $_SESSION, $_COOKIE
          */
-        if (isset($_POST)) {
-            $this->postData = array_map('trim', $_POST);
+        $data = $_POST;
+        if (isset($data)) {
+            foreach ($data as $key => $value) {
+                $this->postData[$key] = is_array($value) ? $value : trim($value);
+            }
         }
 
         if (isset($_SESSION)) {
@@ -194,14 +198,12 @@ abstract class Controller
      */
     public static function getRoles(): array
     {
-//        return [
-//            0 => 'Admin',
-//            1 => 'Manager',
-//            2 => 'Teacher',
-//            3 => 'Student',
-//        ];
-
         return Role::staticQuery('SELECT * FROM roles');
+    }
+
+    public static function getCourses()
+    {
+        return Course::staticQuery('SELECT * FROM courses');
     }
 
     /**

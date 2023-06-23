@@ -38,6 +38,13 @@ $title = "Gestion des formations";
             </p>
         </div>
 
+        <div>
+            <h3>Cours</h3>
+            <p>
+                <?= json_encode($formation->courses ?? ''); ?>
+            </p>
+        </div>
+
         <div class="mt-5 flex justify-between">
             <a href="<?= ROUTE . '/formations/edit/' . $formation->id; ?>" class="btn btn-primary">
                 <i class="fa fa-pencil-alt mr-2"></i>

@@ -63,6 +63,22 @@ $title = "Gestion des formations";
                 </select>
             </div>
 
+            <div class="form-group">
+                <label for="courses" class="form-label">
+                    Cours <?= json_encode($formationCourseIds ?? ''); ?>
+                </label>
+                <select name="courses[]" id="courses" class="form-control" multiple>
+                    <option value="" disabled>
+                        Selectionner un ou plusieurs courses
+                    </option>
+                    <?php foreach($courses as $course): ?>
+                        <option value="<?= $course->id; ?>" <?= in_array($course->id, $formationCourseIds) ? 'selected' : ''; ?>>
+                            <?= $course->nom; ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
             <div class="flex">
                 <button class="btn btn-info" type="submit">
                     Modifier

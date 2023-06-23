@@ -59,6 +59,7 @@ $title = "Gestion des utilisateurs";
                 <input class="form-control" type="text" id="email" name="email" placeholder="John.Doe@email.com" value="<?= $old['email'] ?? null; ?>" />
             </div>
 
+            <?php if (! isset($definedRole) && ! empty($definedRole)): ?>
             <div class="form-group">
                 <label for="role_id" class="form-label">
                     Role de l'utilisateur
@@ -74,6 +75,7 @@ $title = "Gestion des utilisateurs";
                     <?php endforeach; ?>
                 </select>
             </div>
+            <?php endif; ?>
 
             <div class="flex">
                 <button class="btn btn-primary" type="submit">

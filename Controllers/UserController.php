@@ -3,6 +3,7 @@
 namespace RBAC\Controllers;
 
 use Exception;
+use RBAC\Models\Role;
 use RBAC\Models\User;
 
 class UserController extends Controller
@@ -10,7 +11,7 @@ class UserController extends Controller
     public function index()
     {
         $this->redirectIfNotConnect();
-        $users = User::staticQuery("SELECT * FROM users");
+        $users = User::staticQuery("SELECT users.*, roles.nom as role FROM users LEFT JOIN roles ON roles.id = users.role_id");
 
         $this->render('users/index.php', [
             'page_name' => 'userspage',
@@ -18,13 +19,21 @@ class UserController extends Controller
         ]);
     }
 
-    public function store()
+    public function store($role = null)
     {
         $this->redirectIfNotConnect();
+        $definedRole = Role::staticQuery('SELECT * FROM roles WHERE code = ?', [$role], true);
+
+        if (! $definedRole) {
+            $this->callErrorPage();
+            return;
+        }
+
         $data = [
             'page_name' => 'usersnewpage',
             'old' => $this->postData,
             'roles' => static::getRoles(),
+            'definedRole' => $definedRole,
             'errors' => [],
         ];
 
@@ -44,7 +53,7 @@ class UserController extends Controller
                 $errors['prenom'] = "Le champs prenom est obligatoire.";
             }
 
-            if (empty($roleId)) {
+            if (empty($roleId) && ! $role) {
                 $errors['role_id'] = "Le champs role est obligatoire.";
             }
 
@@ -66,8 +75,9 @@ class UserController extends Controller
 
                 if (empty($errors)) {
                     $pdo = User::getPDO();
-                    $req = $pdo->prepare("INSERT INTO users SET nom = ?, prenom = ?, email = ?, mdp = ?");
+                    $req = $pdo->prepare("INSERT INTO users SET role_id = ?, nom = ?, prenom = ?, email = ?, mdp = ?");
                     $req->execute([
+                        $definedRole->id,
                         $nom,
                         $prenom,
                         $email,

@@ -1,11 +1,5 @@
 
-- creer la table role, creer les actions/privileges
-- on va relies l'utilisateur a un role par defaut
-- definir les diffferents actions/privilegees de chaque role (etudiant // ===> actions)
+- cours, (Done), classes, formation,
+- plannings, formations (relier les cours a une formation)
 
-- cours, (Done)
-- classes, formation,
-- plannings
-
-- retirer user_role
 
