@@ -65,7 +65,7 @@ $title = "Gestion des formations";
 
             <div class="form-group">
                 <label for="courses" class="form-label">
-                    Cours <?= json_encode($formationCourseIds ?? ''); ?>
+                    Cours
                 </label>
                 <select name="courses[]" id="courses" class="form-control" multiple>
                     <option value="" disabled>

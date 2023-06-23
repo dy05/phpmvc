@@ -9,4 +9,5 @@ class Formation extends DB {
     public $niveau;
     public $duree;
     public $courses;
+    public $courseIds;
 }

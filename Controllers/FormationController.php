@@ -10,11 +10,8 @@ class FormationController extends Controller
     public function index()
     {
         $this->redirectIfNotConnect();
-//        $formations = Formation::staticQuery("SELECT formations.*, group_concat(DISTINCT courses.nom SEPARATOR ', ') as courses FROM formations LEFT JOIN formation_course ON formations.id = formation_course.formation_id LEFT JOIN courses ON courses.id = formation_course.course_id GROUP BY formations.id");
-        $formations = Formation::staticQuery("SELECT formations.*, courses.nom as course FROM formations LEFT JOIN formation_course ON formations.id = formation_course.formation_id LEFT JOIN courses ON courses.id = formation_course.course_id GROUP BY formations.id, course");
+        $formations = Formation::staticQuery("SELECT formations.*, group_concat(DISTINCT courses.nom SEPARATOR ', ') as courses, group_concat(DISTINCT courses.id SEPARATOR ', ') as courseIds FROM formations LEFT JOIN formation_course ON formations.id = formation_course.formation_id LEFT JOIN courses ON courses.id = formation_course.course_id GROUP BY formations.id");
 
-        var_dump($formations);
-        die();
         $this->render('formations/index.php', [
             'page_name' => 'formationspage',
             'formations' => $formations
@@ -70,11 +67,12 @@ class FormationController extends Controller
                             $fields = [];
                             $values = '';
                             foreach ($courseIds as $courseId) {
-                                $fields[] = [$id, $courseId];
+                                $fields[] = $id;
+                                $fields[] = $courseId;
                                 $values .= '(?, ?), ';
                             }
 
-                            Formation::getPDO()->prepare('INSERT INTO formation_couse (course_id, formation_id) VALUES ' . substr($values, -2), $fields);
+                            Formation::getPDO()->prepare('INSERT INTO formation_course (formation_id, course_id) VALUES ' . substr($values, -2), $fields);
                         }
 
                         $_SESSION['flash'] = ['success' => 'la formation a bien été ajoutée.'];
@@ -93,7 +91,7 @@ class FormationController extends Controller
 
     public function show(int $id = null)
     {
-        $formation = Formation::staticQuery('SELECT * FROM formations WHERE id = ?', [$id], true);
+        $formation = $this->getFormation($id);
         if (! $formation) {
             $this->callErrorPage();
             return;
@@ -108,7 +106,7 @@ class FormationController extends Controller
 
     public function edit(int $id = null)
     {
-        $formation = Formation::staticQuery('SELECT * FROM formations WHERE id = ?', [$id], true);
+        $formation = $this->getFormation($id);
         if (! $formation) {
             $this->callErrorPage();
             return;
@@ -116,14 +114,15 @@ class FormationController extends Controller
 
         $data = [
             'formation' => $formation,
-            'formationCourseIds' => explode(', ', $formation->courses ?? ''),
+            'formationCourseIds' => explode(', ', $formation->courseIds ?? ''),
             'courses' => static::getCourses(),
         ];
 
         $errors = [];
 
         if (! empty($this->postData)) {
-            if (empty($this->postData['nom'])) {
+            $nom = $this->postData['nom'];
+            if (empty($nom)) {
                 $errors['nom'] = "Le champs nom est obligatoire.";
             }
 
@@ -144,15 +143,14 @@ class FormationController extends Controller
 
             if (empty($errors)) {
                 try {
-                    $pdo = Formation::getPDO();
                     $code = $this->postData['code'];
                     if (empty($code)) {
-                        $code = self::slugify($this->postData['nom']);
+                        $code = self::slugify($nom);
                     }
 
-                    $req = $pdo->prepare("UPDATE formations SET nom = :nom, duree = :duree, niveau = :niveau, code = :code WHERE id = :id");
+                    $req = Formation::getPDO()->prepare("UPDATE formations SET nom = :nom, duree = :duree, niveau = :niveau, code = :code WHERE id = :id");
                     $result = $req->execute([
-                        ':nom' => $this->postData['nom'],
+                        ':nom' => $nom,
                         ':duree' => $duree !== '' ? $duree : null,
                         ':niveau' => $niveau !== '' ? $niveau : null,
                         ':code' => $code,
@@ -160,9 +158,7 @@ class FormationController extends Controller
                     ]);
 
                     if ($result) {
-                        // TODO: on selectionne les cours qui existe deja.
-                        // Si un cours existe deja et est dans notre liste, on ne fait rien
-                        $formationCourses = Formation::getPDO()->prepare('SELECT id, course_id FROM formation_couse WHERE formation_id = ?', [$id]);
+                        $formationCourses = Formation::staticQuery('SELECT id, course_id FROM formation_course WHERE formation_id = ?', [$id]);
                         $deletedFormationCourseIds = [];
                         foreach ($formationCourses as $formationCourse) {
                             if (($key = array_search($formationCourse->course_id, $courseIds)) > -1) {
@@ -173,25 +169,25 @@ class FormationController extends Controller
                         }
 
                         if (count($deletedFormationCourseIds)) {
-                            Formation::getPDO()->prepare('DELETE FROM formation_couse WHERE id IN (:ids)', [join(',', $deletedFormationCourseIds)]);
+                            Formation::staticQuery('DELETE FROM formation_course WHERE id IN (' . join(', ', $deletedFormationCourseIds) . ')');
                         }
 
                         if (count($courseIds)) {
                             $fields = [];
                             $values = '';
                             foreach ($courseIds as $courseId) {
-                                $fields[] = [$id, $courseId];
+                                $fields[] = $id;
+                                $fields[] = $courseId;
                                 $values .= '(?, ?), ';
                             }
 
-                            Formation::getPDO()->prepare('INSERT INTO formation_couse (course_id, formation_id) VALUES ' . substr($values, -2), $fields);
+                            Formation::staticQuery('INSERT INTO formation_course (formation_id, course_id) VALUES ' . substr($values, 0, -2), $fields);
                         }
 
                         $_SESSION['flash'] = ['success' => 'la formation a bien été modifiée.'];
                         header('Location:' . ROUTE . '/formations');
                     }
                 } catch (Exception $exc) {
-                    die($exc->getMessage());
                     $errors['error'] = $exc->getCode() > 0 ? 'Erreur innatendue. ' : $exc->getMessage();
                 }
             }
@@ -222,5 +218,18 @@ class FormationController extends Controller
         }
 
         header('Location:' . ROUTE . '/formations');
+    }
+
+    private function getFormation(int $id)
+    {
+        $sqlQuery = "SELECT formations.*, 
+         group_concat(DISTINCT courses.nom SEPARATOR ', ') as courses, 
+         group_concat(DISTINCT courses.id SEPARATOR ', ') as courseIds 
+         FROM formations 
+         LEFT JOIN formation_course ON formations.id = formation_course.formation_id 
+         LEFT JOIN courses ON courses.id = formation_course.course_id 
+         WHERE formations.id = ?";
+
+         return Formation::staticQuery($sqlQuery, [$id], true);
     }
 }

@@ -20,6 +20,7 @@ $title = "Gestion des formations";
                 <th>Code</th>
                 <th>Duree</th>
                 <th>Niveau</th>
+                <th>Cours</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -30,6 +31,7 @@ $title = "Gestion des formations";
                     <td><?= ucfirst($formation->code ?? ''); ?></td>
                     <td><?= $formation->duree ?? ''; ?></td>
                     <td><?= $formation->niveau ?? ''; ?></td>
+                    <td><?= $formation->courses ?? ''; ?></td>
                     <td>
                         <a href="<?= ROUTE . '/formations/formation/' . $formation->id; ?>" class="btn btn-info btn-xs">
                             <i class="fa fa-eye"></i>
